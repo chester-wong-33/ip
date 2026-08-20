@@ -81,6 +81,25 @@ public class Cooper {
                         bot.printChecklist();
                         break;
                     }
+                    case Action.DELETE: {
+                        String[] params = input.split(" ");
+                        if (params.length != 2) {
+                            throw new Exception("Deleting is serious! Cooper wishes you provided a proper index only.");
+                        }
+
+                        int idx = wordToNum(params[1]);
+                        if (idx == -1 || idx > bot.checklist.size()) {
+                            throw new Exception("The index isn't valid!");
+                        }
+
+                        Task toRemove = bot.checklist.get(idx - 1);
+                        bot.checklist.remove(idx - 1);
+                        String status = (bot.checklist.size() == 1) ? "task" : "tasks";
+
+                        bot.echo("Noted. I've removed this task:\n  " + toRemove +
+                                String.format("\n\tNow you have %d %s in the list.", bot.checklist.size(), status));
+                        break;
+                    }
                     case Action.MARK: {
                         if (words.length == 2) {
                             int listNum = wordToNum(words[1]);
