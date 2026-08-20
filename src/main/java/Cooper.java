@@ -1,10 +1,19 @@
 public class Cooper {
     public static void main(String[] args) {
-        String banner = " ____        _        \n"
-                + "|  _ \\ _   _| | _____ \n"
-                + "| | | | | | | |/ / _ \\\n"
-                + "| |_| | |_| |   <  __/\n"
-                + "|____/ \\__,_|_|\\_\\___|\n";
+        String banner = """
+        ____________________________________________________________
+        \
+        [CHATBOT BANNER]
+        \
+        Hello! I'm Cooper.
+        \
+        What can I do for you?
+        \
+        ____________________________________________________________
+        \
+        Bye. Hope to see you again soon!
+        \
+        ____________________________________________________________""";
         System.out.println(banner);
     }
 }
