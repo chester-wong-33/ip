@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Cooper {
 
-    private static final String DASHES = "\t____________________________________________________________\n";
+    private static final String DASHES = "\t_*_*_*______________________________________________________\n";
     private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
 
     private static String echo(String s) {
