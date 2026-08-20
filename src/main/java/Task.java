@@ -11,6 +11,10 @@ public class Task {
         isDone = true;
     }
 
+    public void markAsUndone() {
+        isDone = false;
+    }
+
     private String getStatusIcon() {
         return (isDone ? "X" : " ");
     }
