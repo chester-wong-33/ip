@@ -28,10 +28,10 @@ public class Cooper {
             return;
         }
 
-        StringBuilder s = new StringBuilder(String.format("%d. %s\n", 1, checklist.getFirst().getDescription()));
+        StringBuilder s = new StringBuilder(String.format("%d. %s\n", 1, checklist.getFirst()));
 
         for (int i = 1; i < checklist.size(); i++) {
-            s.append(String.format("\t%d. %s\n", i + 1, checklist.get(i).getDescription()));
+            s.append(String.format("\t%d. %s\n", i + 1, checklist.get(i)));
         }
 
         echo(s.delete(s.capacity() - 1, s.capacity()).toString());
