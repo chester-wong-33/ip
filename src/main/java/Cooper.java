@@ -13,8 +13,8 @@ public class Cooper {
         checklist = new ArrayList<>();
     }
 
-    private String echo(String s) {
-        return DASHES + '\t' + s + '\n' + DASHES;
+    private void echo(String s) {
+        System.out.println(DASHES + '\t' + s + '\n' + DASHES);
     }
 
     private void addTask(String description) {
@@ -22,9 +22,10 @@ public class Cooper {
         checklist.add(toDo);
     }
 
-    private String printChecklist() {
+    private void printChecklist() {
         if (checklist.isEmpty()) {
-            return echo("No current tasks!");
+            echo("No current tasks!");
+            return;
         }
 
         StringBuilder s = new StringBuilder(String.format("%d. %s\n", 1, checklist.getFirst().getDescription()));
@@ -33,7 +34,7 @@ public class Cooper {
             s.append(String.format("\t%d. %s\n", i + 1, checklist.get(i).getDescription()));
         }
 
-        return echo(s.delete(s.capacity() - 1, s.capacity()).toString());
+        echo(s.delete(s.capacity() - 1, s.capacity()).toString());
     }
 
     public static void main(String[] args) {
@@ -41,26 +42,22 @@ public class Cooper {
 
         Cooper bot = new Cooper();
 
-        String banner = bot.echo(INTRO);
-        System.out.println(banner);
+        bot.echo(INTRO);
 
         String input = scanner.nextLine();
 
         while (!input.toLowerCase().equals("bye")) {
 
             if (input.toLowerCase().equals("list")) {
-                String list = bot.printChecklist();
-                System.out.println(list);
+                bot.printChecklist();
             } else {
                 bot.addTask(input);
 
-                String success = bot.echo("added: " + input);
-                System.out.println(success);
+                bot.echo("added: " + input);
             }
                 input = scanner.nextLine();
         }
 
-        String last = bot.echo("Bye. Hope to see you again soon!");
-        System.out.println(last);
+        bot.echo("Bye. Hope to see you again soon!");
     }
 }
