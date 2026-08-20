@@ -10,6 +10,6 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + String.format(" (from: %s to %s)", startDate, endDate);
+        return "[E]" + super.toString() + String.format(" (from: %s to: %s)", startDate, endDate);
     }
 }

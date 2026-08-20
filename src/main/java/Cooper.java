@@ -33,9 +33,10 @@ public class Cooper {
         System.out.println(DASHES + '\t' + s + '\n' + DASHES);
     }
 
-    private void addTask(String description) {
-        Task toDo = new Task(description);
-        checklist.add(toDo);
+    private void addTask(Task task) {
+        checklist.add(task);
+        echo("Got it. I've added this task:\n\t  " + task +
+                String.format("\n\tNow you have %d tasks in the list.", checklist.size()));
     }
 
     private void printChecklist() {
@@ -60,52 +61,136 @@ public class Cooper {
 
         bot.echo(INTRO);
 
-        String input = scanner.nextLine();
+        String input;
+        Action cmd = Action.BYE;
 
-        while (!input.toLowerCase().equals("bye")) {
+        do {
 
-            if (input.toLowerCase().equals("list")) {
-                bot.printChecklist();
-            } else {
-                String[] words = input.split(" ");
-
-                if (words.length == 2 && words[0].equals("mark")) {
-                    int listNum = wordToNum(words[1]);
-                    if (listNum != -1) {
-                        if (listNum <= bot.checklist.size()) {
-                            Task currTask = bot.checklist.get(listNum - 1);
-                            currTask.markAsDone();
-                            bot.echo("Nice! I've marked this task as done:\n\t  " + currTask +
-                                    "\n\tCooper would have loved that :)");
-                        } else {
-                            bot.echo("I coulnd't find the task with that index :(");
-                        }
-                        input = scanner.nextLine();
-                        continue;
-                    }
-                }
-
-                if (words.length == 2 && words[0].equals("unmark")) {
-                    int listNum = wordToNum(words[1]);
-                    if (listNum != -1) {
-                        if (listNum <= bot.checklist.size()) {
-                            Task currTask = bot.checklist.get(listNum - 1);
-                            currTask.markAsUndone();
-                            bot.echo("OK, I've marked this task as not done yet:\n\t  " + currTask +
-                                    "\n\tKeep going! :)");
-                        } else {
-                            bot.echo("I coulnd't find the task with that index :(");
-                        }
-                        input = scanner.nextLine();
-                        continue;
-                    }
-                }
-                bot.addTask(input);
-
-                bot.echo("added: " + input);
-            }
             input = scanner.nextLine();
-        }
+            String[] words = input.split(" ");
+            cmd = Action.valueOf(words[0].toUpperCase());
+
+            switch(cmd) {
+                case Action.LIST: {
+                    bot.printChecklist();
+                    break;
+                }
+                case Action.MARK: {
+                    if (words.length == 2) {
+                        int listNum = wordToNum(words[1]);
+                        if (listNum != -1) {
+                            if (listNum <= bot.checklist.size()) {
+                                Task currTask = bot.checklist.get(listNum - 1);
+                                currTask.markAsDone();
+                                bot.echo("Nice! I've marked this task as done:\n\t  " + currTask +
+                                        "\n\tCooper would have loved that :)");
+                            } else {
+                                bot.echo("I coulnd't find the task with that index :(");
+                            }
+                            break;
+                        }
+                    }
+                    bot.echo("Invalid syntax :(");
+                    break;
+                }
+                case Action.UNMARK: {
+                    if (words.length == 2) {
+                        int listNum = wordToNum(words[1]);
+                        if (listNum != -1) {
+                            if (listNum <= bot.checklist.size()) {
+                                Task currTask = bot.checklist.get(listNum - 1);
+                                currTask.markAsUndone();
+                                bot.echo("OK, I've marked this task as not done yet:\n\t  " + currTask +
+                                        "\n\tKeep going! :)");
+                            } else {
+                                bot.echo("I coulnd't find the task with that index :(");
+                            }
+                            break;
+                        }
+                    }
+                    bot.echo("Invalid syntax :(");
+                    break;
+                }
+                case Action.TODO: {
+                    ToDo newTodo = new ToDo(input.split(" ", 2)[1]);
+                    bot.addTask(newTodo);
+                    break;
+                }
+                case Action.DEADLINE: {
+                    String[] params = input.split(" /by ");
+                    String taskName = params[0].split("deadline ")[1];
+                    String dueDate = params[1];
+
+                    Deadline newDeadline = new Deadline(taskName, dueDate);
+                    bot.addTask(newDeadline);
+                    break;
+                }
+                case Action.EVENT: {
+                    String[] params = input.split(" /from ");
+                    String taskName = params[0].split("event ")[1];
+                    String startDate = params[1].split(" /to ")[0];
+                    String endDate = params[1].split(" /to ")[1];
+
+                    Event newEvent = new Event(taskName, startDate, endDate);
+                    bot.addTask(newEvent);
+                    break;
+                }
+                case Action.BYE: {
+                    cmd = Action.BYE;
+                    break;
+                }
+                default:
+                    bot.echo("Cooper doesn't understand this command :(");
+
+            }
+        } while (!cmd.equals(Action.BYE));
+
+//        String input = scanner.nextLine();
+//
+//        while (!input.toLowerCase().equals("bye")) {
+//
+//            if (input.toLowerCase().equals("list")) {
+//                bot.printChecklist();
+//            } else {
+//                String[] words = input.split(" ");
+//
+//                if (words.length == 2 && words[0].equals("mark")) {
+//                    int listNum = wordToNum(words[1]);
+//                    if (listNum != -1) {
+//                        if (listNum <= bot.checklist.size()) {
+//                            Task currTask = bot.checklist.get(listNum - 1);
+//                            currTask.markAsDone();
+//                            bot.echo("Nice! I've marked this task as done:\n\t  " + currTask +
+//                                    "\n\tCooper would have loved that :)");
+//                        } else {
+//                            bot.echo("I coulnd't find the task with that index :(");
+//                        }
+//                        input = scanner.nextLine();
+//                        continue;
+//                    }
+//                }
+//
+//                if (words.length == 2 && words[0].equals("unmark")) {
+//                    int listNum = wordToNum(words[1]);
+//                    if (listNum != -1) {
+//                        if (listNum <= bot.checklist.size()) {
+//                            Task currTask = bot.checklist.get(listNum - 1);
+//                            currTask.markAsUndone();
+//                            bot.echo("OK, I've marked this task as not done yet:\n\t  " + currTask +
+//                                    "\n\tKeep going! :)");
+//                        } else {
+//                            bot.echo("I coulnd't find the task with that index :(");
+//                        }
+//                        input = scanner.nextLine();
+//                        continue;
+//                    }
+//                }
+//                bot.addTask(input);
+//
+//                bot.echo("added: " + input);
+//            }
+//            input = scanner.nextLine();
+//        }
 
         bot.echo("Bye. Hope to see you again soon!");
     }
