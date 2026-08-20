@@ -3,8 +3,6 @@ public class Cooper {
         String banner = """
         ____________________________________________________________
         \
-        [CHATBOT BANNER]
-        \
         Hello! I'm Cooper.
         \
         What can I do for you?
