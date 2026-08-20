@@ -35,8 +35,10 @@ public class Cooper {
 
     private void addTask(Task task) {
         checklist.add(task);
+        String status = (checklist.size() == 1) ? "task" : "tasks";
+
         echo("Got it. I've added this task:\n\t  " + task +
-                String.format("\n\tNow you have %d tasks in the list.", checklist.size()));
+                String.format("\n\tNow you have %d %s in the list.", checklist.size(), status));
     }
 
     private void printChecklist() {
@@ -45,13 +47,15 @@ public class Cooper {
             return;
         }
 
+        String preamble = "Here are the tasks in your list:\n\t";
+
         StringBuilder s = new StringBuilder(String.format("%d.%s\n", 1, checklist.getFirst()));
 
         for (int i = 1; i < checklist.size(); i++) {
             s.append(String.format("\t%d.%s\n", i + 1, checklist.get(i)));
         }
 
-        echo(s.delete(s.length() - 1, s.length()).toString());
+        echo(preamble + s.delete(s.length() - 1, s.length()).toString());
     }
 
     public static void main(String[] args) {
