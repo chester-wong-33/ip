@@ -114,6 +114,9 @@ public class Cooper {
             case Action.EVENT:
                 addTask(Parser.parseEvent(input));
                 break;
+            case Action.FIND:
+                ui.showMatchingTasks(tasks.find(Parser.parseFindKeyword(input)));
+                break;
             case Action.BYE:
                 return true;
             default:

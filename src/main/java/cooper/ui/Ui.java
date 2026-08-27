@@ -90,6 +90,26 @@ public class Ui {
         showMessage(message.toString());
     }
 
+    /** Displays tasks matching a find command with one-based result numbering. */
+    public void showMatchingTasks(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            showMessage("No matching tasks found!");
+            return;
+        }
+
+        StringBuilder message = new StringBuilder("Here are the matching tasks in your list:\n\t");
+        for (int i = 0; i < tasks.size(); i++) {
+            if (i > 0) {
+                message.append('\t');
+            }
+            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
+            if (i < tasks.size() - 1) {
+                message.append('\n');
+            }
+        }
+        showMessage(message.toString());
+    }
+
     /**
      * Formats a date-time for display to the user.
      *
