@@ -1,3 +1,6 @@
+import cooper.task.Task;
+import cooper.task.TaskList;
+
 /** Coordinates Cooper's user interface, task list, parser, and storage. */
 public class Cooper {
     private static final String FILE_PATH = "data/cooper.txt";

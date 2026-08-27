@@ -1,3 +1,7 @@
+import cooper.task.Deadline;
+import cooper.task.Event;
+import cooper.task.ToDo;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

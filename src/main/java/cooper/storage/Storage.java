@@ -1,3 +1,8 @@
+import cooper.task.Deadline;
+import cooper.task.Event;
+import cooper.task.Task;
+import cooper.task.ToDo;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +24,7 @@ public class Storage {
         String[] params = line.split("\\|", -1);
 
         if (params.length != 3) {
-            throw new CooperException("Improper ToDo format!");
+            throw new CooperException("Improper cooper.task.ToDo format!");
         }
 
         boolean isDone = params[1].trim().equals("1");
@@ -31,7 +36,7 @@ public class Storage {
         String[] params = line.split("\\|", -1);
 
         if (params.length != 4) {
-            throw new CooperException("Improper Deadline format!");
+            throw new CooperException("Improper cooper.task.Deadline format!");
         }
 
         boolean isDone = params[1].trim().equals("1");
@@ -44,7 +49,7 @@ public class Storage {
         String[] params = line.split("\\|", -1);
 
         if (params.length != 5) {
-            throw new CooperException("Improper Event format!");
+            throw new CooperException("Improper cooper.task.Event format!");
         }
 
         boolean isDone = params[1].trim().equals("1");
@@ -133,7 +138,7 @@ public class Storage {
                 return parseEvent(line);
             }
             default: {
-                throw new CooperException("Task type not recognized!");
+                throw new CooperException("cooper.task.Task type not recognized!");
             }
         }
     }
