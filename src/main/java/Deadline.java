@@ -15,7 +15,7 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + String.format(" (by: %s)", Cooper.parseDateString(dueDate));
+        return "[D]" + super.toString() + String.format(" (by: %s)", Ui.formatDate(dueDate));
     }
 
     @Override

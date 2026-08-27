@@ -20,7 +20,7 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString()
                 + String.format(" (from: %s to: %s)",
-                Cooper.parseDateString(startDate), Cooper.parseDateString(endDate));
+                Ui.formatDate(startDate), Ui.formatDate(endDate));
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/** Loads tasks from and saves tasks to a data file. */
 public class Storage {
     private final String filePath;
 
