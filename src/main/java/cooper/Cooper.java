@@ -8,7 +8,9 @@ import cooper.task.Task;
 import cooper.task.TaskList;
 import cooper.ui.Ui;
 
-/** Coordinates Cooper's user interface, task list, parser, and storage. */
+/**
+ * Coordinates Cooper's user interface, task list, parser, and storage.
+ */
 public class Cooper {
     private static final String FILE_PATH = "data/cooper.txt";
 
@@ -25,7 +27,7 @@ public class Cooper {
      * Creates Cooper using the specified task data file.
      * If loading fails, Cooper reports the error and starts with an empty task list.
      *
-     * @param filePath path of the task data file
+     * @param filePath Path of the task data file.
      */
     public Cooper(String filePath) {
         ui = new Ui();
@@ -85,37 +87,37 @@ public class Cooper {
     /**
      * Executes one user command.
      *
-     * @return true if Cooper should exit
+     * @return True if Cooper should exit.
      */
     private boolean executeCommand(String input) {
         Action action = Parser.parseAction(input);
 
         switch (action) {
-        case Action.LIST:
-            ui.showTaskList(tasks.asList());
-            break;
-        case Action.DELETE:
-            handleDelete(input);
-            break;
-        case Action.MARK:
-            handleMark(input);
-            break;
-        case Action.UNMARK:
-            handleUnmark(input);
-            break;
-        case Action.TODO:
-            addTask(Parser.parseTodo(input));
-            break;
-        case Action.DEADLINE:
-            addTask(Parser.parseDeadline(input));
-            break;
-        case Action.EVENT:
-            addTask(Parser.parseEvent(input));
-            break;
-        case Action.BYE:
-            return true;
-        default:
-            throw new CooperException("Cooper doesn't understand this command :(");
+            case Action.LIST:
+                ui.showTaskList(tasks.asList());
+                break;
+            case Action.DELETE:
+                handleDelete(input);
+                break;
+            case Action.MARK:
+                handleMark(input);
+                break;
+            case Action.UNMARK:
+                handleUnmark(input);
+                break;
+            case Action.TODO:
+                addTask(Parser.parseTodo(input));
+                break;
+            case Action.DEADLINE:
+                addTask(Parser.parseDeadline(input));
+                break;
+            case Action.EVENT:
+                addTask(Parser.parseEvent(input));
+                break;
+            case Action.BYE:
+                return true;
+            default:
+                throw new CooperException("Cooper doesn't understand this command :(");
         }
         return false;
     }

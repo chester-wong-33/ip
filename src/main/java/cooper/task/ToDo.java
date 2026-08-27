@@ -1,6 +1,8 @@
 package cooper.task;
 
-/** Represents a task without an associated date or time. */
+/**
+ * Represents a task without an associated date or time.
+ */
 public class ToDo extends Task {
 
     /** Creates an incomplete todo with the specified description. */

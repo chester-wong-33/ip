@@ -4,7 +4,9 @@ import cooper.ui.Ui;
 
 import java.time.LocalDateTime;
 
-/** Represents a task that must be completed by a specific date and time. */
+/**
+ * Represents a task that must be completed by a specific date and time.
+ */
 public class Deadline extends Task {
     private final LocalDateTime dueDate;
 

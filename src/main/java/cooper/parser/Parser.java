@@ -12,7 +12,9 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.List;
 
-/** Converts user input into actions, task numbers, and task objects. */
+/**
+ * Converts user input into actions, task numbers, and task objects.
+ */
 public class Parser {
     private static final List<DateTimeFormatter> DATE_TIME_FORMATS = List.of(
             DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm").withResolverStyle(ResolverStyle.STRICT),
@@ -24,9 +26,9 @@ public class Parser {
     /**
      * Parses the command word at the start of the input.
      *
-     * @param input complete command entered by the user
-     * @return action corresponding to the command word
-     * @throws CooperException if the input is empty or the command is unknown
+     * @param input Complete command entered by the user.
+     * @return Action corresponding to the command word.
+     * @throws CooperException If the input is empty or the command is unknown.
      */
     public static Action parseAction(String input) {
         String trimmedInput = input.trim();
@@ -45,10 +47,10 @@ public class Parser {
     /**
      * Parses a positive, one-based task number from a command containing exactly two words.
      *
-     * @param input command containing the task number
-     * @param syntaxErrorMessage message used when the command does not contain exactly two words
-     * @return parsed positive task number
-     * @throws CooperException if the syntax or task number is invalid
+     * @param input Command containing the task number.
+     * @param syntaxErrorMessage Message used when the command does not contain exactly two words.
+     * @return Parsed positive task number.
+     * @throws CooperException If the syntax or task number is invalid.
      */
     public static int parseTaskNumber(String input, String syntaxErrorMessage) {
         String[] parameters = input.trim().split(" ");
@@ -66,9 +68,9 @@ public class Parser {
     /**
      * Creates a todo task from a todo command.
      *
-     * @param input complete todo command
-     * @return todo containing the supplied description
-     * @throws CooperException if the description is missing
+     * @param input Complete todo command.
+     * @return Todo containing the supplied description.
+     * @throws CooperException If the description is missing.
      */
     public static ToDo parseTodo(String input) {
         String[] parameters = input.split(" ");
@@ -81,9 +83,9 @@ public class Parser {
     /**
      * Creates a deadline task from a command containing a {@code /by} date.
      *
-     * @param input complete deadline command
-     * @return deadline containing the supplied description and due date
-     * @throws CooperException if the command or date is invalid
+     * @param input Complete deadline command.
+     * @return Deadline containing the supplied description and due date.
+     * @throws CooperException If the command or date is invalid.
      */
     public static Deadline parseDeadline(String input) {
         String[] parameters = input.split(" /by ");
@@ -101,9 +103,9 @@ public class Parser {
     /**
      * Creates an event task from a command containing {@code /from} and {@code /to} dates.
      *
-     * @param input complete event command
-     * @return event containing the supplied description and date range
-     * @throws CooperException if the command or either date is invalid
+     * @param input Complete event command.
+     * @return Event containing the supplied description and date range.
+     * @throws CooperException If the command or either date is invalid.
      */
     public static Event parseEvent(String input) {
         String[] parameters = input.split(" /from ");
@@ -124,9 +126,9 @@ public class Parser {
      * Parses a supported date or date-time supplied by the user.
      * Dates without a time are represented at the start of the day.
      *
-     * @param time date or date-time in year-first or day-first format
-     * @return parsed date-time
-     * @throws CooperException if the value does not match a supported format
+     * @param time Date or date-time in year-first or day-first format.
+     * @return Parsed date-time.
+     * @throws CooperException If the value does not match a supported format.
      */
     public static LocalDateTime parseDate(String time) {
         String normalizedTime = time.trim().replace('/', '-');

@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-/** Handles all text-based interaction with the user. */
+/**
+ * Handles all text-based interaction with the user.
+ */
 public class Ui {
     private static final String DASHES = "\t_*_*_*______________________________________________________\n";
     private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
@@ -91,8 +93,8 @@ public class Ui {
     /**
      * Formats a date-time for display to the user.
      *
-     * @param time date-time to format
-     * @return date-time in {@code MMM dd uuuu HH:mm} format
+     * @param time Date-time to format.
+     * @return Date-time in {@code MMM dd uuuu HH:mm} format.
      */
     public static String formatDate(LocalDateTime time) {
         return time.format(DISPLAY_FORMAT);

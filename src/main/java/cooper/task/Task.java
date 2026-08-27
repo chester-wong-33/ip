@@ -1,6 +1,8 @@
 package cooper.task;
 
-/** Represents a task with a description and completion status. */
+/**
+ * Represents a task with a description and completion status.
+ */
 public class Task {
     protected final String description;
     protected boolean isDone;
@@ -8,7 +10,7 @@ public class Task {
     /**
      * Creates an incomplete task.
      *
-     * @param description description of the task
+     * @param description Description of the task.
      */
     public Task(String description) {
         this.description = description;
@@ -18,8 +20,8 @@ public class Task {
     /**
      * Creates a task with the specified completion status.
      *
-     * @param description description of the task
-     * @param isDone whether the task is complete
+     * @param description Description of the task.
+     * @param isDone Whether the task is complete.
      */
     public Task(String description, boolean isDone) {
         this(description);
@@ -49,7 +51,7 @@ public class Task {
     /**
      * Returns the task fields in the format used by persistent storage.
      *
-     * @return storage representation of this task
+     * @return Storage representation of this task.
      */
     public String toDataString() {
         return String.format("%d | %s", isDone ? 1 : 0, description);
