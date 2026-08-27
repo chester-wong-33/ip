@@ -1,3 +1,6 @@
+package cooper.parser;
+
+import cooper.exception.CooperException;
 import cooper.task.Deadline;
 import cooper.task.Event;
 import cooper.task.ToDo;

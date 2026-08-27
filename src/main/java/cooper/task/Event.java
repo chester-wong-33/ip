@@ -1,3 +1,7 @@
+package cooper.task;
+
+import cooper.ui.Ui;
+
 import java.time.LocalDateTime;
 
 public class Event extends Task {

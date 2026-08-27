@@ -1,3 +1,7 @@
+package cooper.task;
+
+import cooper.exception.CooperException;
+
 import java.util.ArrayList;
 import java.util.List;
 
