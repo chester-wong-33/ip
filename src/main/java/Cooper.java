@@ -96,7 +96,7 @@ public class Cooper {
                         bot.checklist.remove(idx - 1);
                         String status = (bot.checklist.size() == 1) ? "task" : "tasks";
 
-                        bot.echo("Noted. I've removed this task:\n  " + toRemove +
+                        bot.echo("Noted. I've removed this task:\n\t  " + toRemove +
                                 String.format("\n\tNow you have %d %s in the list.", bot.checklist.size(), status));
                         break;
                     }
@@ -110,7 +110,7 @@ public class Cooper {
                                     bot.echo("Nice! I've marked this task as done:\n\t  " + currTask +
                                             "\n\tCooper would have loved that :)");
                                 } else {
-                                    bot.echo("I coulnd't find the task with that index :(");
+                                    bot.echo("I couldn't find the task with that index :(");
                                 }
                                 break;
                             }
