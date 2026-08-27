@@ -16,11 +16,17 @@ public class Cooper {
     private final Storage storage;
     private final Ui ui;
 
+    /** Creates Cooper using the default task data file. */
     public Cooper() {
         this(FILE_PATH);
     }
 
-    /** Creates Cooper using the specified task data file. */
+    /**
+     * Creates Cooper using the specified task data file.
+     * If loading fails, Cooper reports the error and starts with an empty task list.
+     *
+     * @param filePath path of the task data file
+     */
     public Cooper(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
@@ -35,16 +41,19 @@ public class Cooper {
         tasks = loadedTasks;
     }
 
+    /** Persists a snapshot of the current task list. */
     private void saveTasks() {
         storage.saveTasks(tasks.asList());
     }
 
+    /** Adds, saves, and displays a newly parsed task. */
     private void addTask(Task task) {
         tasks.add(task);
         saveTasks();
         ui.showAddedTask(task, tasks.size());
     }
 
+    /** Parses and executes a delete command, then persists the updated list. */
     private void handleDelete(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Deleting is serious! Cooper wishes you provided a proper index only.");
@@ -53,6 +62,7 @@ public class Cooper {
         ui.showDeletedTask(removedTask, tasks.size());
     }
 
+    /** Parses and executes a mark command, then persists the updated task. */
     private void handleMark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Invalid syntax :( Cooper would like you to follow the format: mark <task-number>");
@@ -62,6 +72,7 @@ public class Cooper {
         ui.showMarkedTask(task);
     }
 
+    /** Parses and executes an unmark command, then persists the updated task. */
     private void handleUnmark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Invalid syntax :( Cooper would like you to follow the format: unmark <task-number>");
@@ -127,6 +138,7 @@ public class Cooper {
         ui.showGoodbye();
     }
 
+    /** Starts Cooper using the default task data file. */
     public static void main(String[] args) {
         new Cooper().run();
     }
