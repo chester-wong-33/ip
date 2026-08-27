@@ -21,7 +21,13 @@ public class Parser {
             DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT),
             DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT));
 
-    /** Parses the command word at the start of the input. */
+    /**
+     * Parses the command word at the start of the input.
+     *
+     * @param input complete command entered by the user
+     * @return action corresponding to the command word
+     * @throws CooperException if the input is empty or the command is unknown
+     */
     public static Action parseAction(String input) {
         String trimmedInput = input.trim();
         if (trimmedInput.isEmpty()) {
@@ -36,7 +42,14 @@ public class Parser {
         }
     }
 
-    /** Parses a one-based task number from a command containing exactly two words. */
+    /**
+     * Parses a positive, one-based task number from a command containing exactly two words.
+     *
+     * @param input command containing the task number
+     * @param syntaxErrorMessage message used when the command does not contain exactly two words
+     * @return parsed positive task number
+     * @throws CooperException if the syntax or task number is invalid
+     */
     public static int parseTaskNumber(String input, String syntaxErrorMessage) {
         String[] parameters = input.trim().split(" ");
         if (parameters.length != 2) {
@@ -50,7 +63,13 @@ public class Parser {
         return taskNumber;
     }
 
-    /** Creates a todo task from a todo command. */
+    /**
+     * Creates a todo task from a todo command.
+     *
+     * @param input complete todo command
+     * @return todo containing the supplied description
+     * @throws CooperException if the description is missing
+     */
     public static ToDo parseTodo(String input) {
         String[] parameters = input.split(" ");
         if (parameters.length == 1) {
@@ -59,7 +78,13 @@ public class Parser {
         return new ToDo(input.split(" ", 2)[1]);
     }
 
-    /** Creates a deadline task from a deadline command. */
+    /**
+     * Creates a deadline task from a command containing a {@code /by} date.
+     *
+     * @param input complete deadline command
+     * @return deadline containing the supplied description and due date
+     * @throws CooperException if the command or date is invalid
+     */
     public static Deadline parseDeadline(String input) {
         String[] parameters = input.split(" /by ");
         if (parameters.length != 2) {
@@ -73,7 +98,13 @@ public class Parser {
         return new Deadline(taskName, parseDate(parameters[1]));
     }
 
-    /** Creates an event task from an event command. */
+    /**
+     * Creates an event task from a command containing {@code /from} and {@code /to} dates.
+     *
+     * @param input complete event command
+     * @return event containing the supplied description and date range
+     * @throws CooperException if the command or either date is invalid
+     */
     public static Event parseEvent(String input) {
         String[] parameters = input.split(" /from ");
         if (parameters.length != 2) {
@@ -89,7 +120,14 @@ public class Parser {
         return new Event(taskName, parseDate(startDate), parseDate(endDate));
     }
 
-    /** Parses a supported date or date-time supplied by the user. */
+    /**
+     * Parses a supported date or date-time supplied by the user.
+     * Dates without a time are represented at the start of the day.
+     *
+     * @param time date or date-time in year-first or day-first format
+     * @return parsed date-time
+     * @throws CooperException if the value does not match a supported format
+     */
     public static LocalDateTime parseDate(String time) {
         String normalizedTime = time.trim().replace('/', '-');
 
@@ -112,6 +150,7 @@ public class Parser {
         throw new CooperException("Invalid date. Use yyyy-MM-dd or dd-MM-yyyy, and HH:mm optionally.");
     }
 
+    /** Converts a string of decimal digits to an integer, or returns {@code -1} for non-digits. */
     private static int wordToNum(String numberString) {
         int number = 0;
         int length = numberString.length();

@@ -19,10 +19,12 @@ import java.util.Scanner;
 public class Storage {
     private final String filePath;
 
+    /** Creates a storage manager that reads from and writes to the specified file. */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /** Decodes the fields of a todo storage entry. */
     private ToDo parseTodo(String line) {
         String[] params = line.split("\\|", -1);
 
@@ -35,6 +37,7 @@ public class Storage {
         return new ToDo(params[2].trim(), isDone);
     }
 
+    /** Decodes the fields of a deadline storage entry. */
     private Deadline parseDeadline(String line) {
         String[] params = line.split("\\|", -1);
 
@@ -48,6 +51,7 @@ public class Storage {
         return new Deadline(params[2].trim(), isDone, dueDate);
     }
 
+    /** Decodes the fields of an event storage entry. */
     private Event parseEvent(String line) {
         String[] params = line.split("\\|", -1);
 
@@ -62,6 +66,12 @@ public class Storage {
         return new Event(params[2].trim(), isDone, startDate, endDate);
     }
 
+    /**
+     * Loads all tasks from the data file, creating the file and its parent directories if absent.
+     *
+     * @return tasks decoded from the data file
+     * @throws CooperException if the file cannot be read or created
+     */
     public List<Task> loadTasks() {
         List<Task> taskList = new ArrayList<>();
         Path path = Path.of(filePath);
@@ -91,6 +101,12 @@ public class Storage {
         return taskList;
     }
 
+    /**
+     * Replaces the contents of the data file with the supplied tasks.
+     *
+     * @param tasks tasks to persist in their current order
+     * @throws CooperException if the directory or file cannot be written
+     */
     public void saveTasks(List<Task> tasks) {
 
         Path path = Path.of(filePath);
@@ -114,6 +130,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Decodes one storage entry into its corresponding task subtype.
+     *
+     * @param line pipe-delimited storage entry
+     * @return decoded todo, deadline, or event
+     * @throws CooperException if the entry structure, status, or task type is invalid
+     */
     public Task decodeTask(String line) {
         String[] params = line.split("\\|", -1);
 

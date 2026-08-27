@@ -17,48 +17,58 @@ public class Ui {
 
     private final Scanner scanner = new Scanner(System.in);
 
+    /** Returns whether another command is available from standard input. */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
     }
 
+    /** Reads and returns the next command from standard input. */
     public String readCommand() {
         return scanner.nextLine();
     }
 
+    /** Displays Cooper's welcome message. */
     public void showWelcome() {
         showMessage(INTRO);
     }
 
+    /** Displays Cooper's goodbye message. */
     public void showGoodbye() {
         showMessage("Bye. Hope to see you again soon!");
     }
 
+    /** Displays an error message to the user. */
     public void showError(String message) {
         showMessage(message);
     }
 
+    /** Displays a warning that saved tasks could not be loaded. */
     public void showLoadingError() {
         showMessage("Cooper couldn't load the saved tasks. Starting with an empty task list.");
     }
 
+    /** Displays the added task and the updated number of tasks. */
     public void showAddedTask(Task task, int taskCount) {
         showMessage("Got it. I've added this task:\n\t  " + task + taskCountMessage(taskCount));
     }
 
+    /** Displays the deleted task and the updated number of tasks. */
     public void showDeletedTask(Task task, int taskCount) {
         showMessage("Noted. I've removed this task:\n\t  " + task + taskCountMessage(taskCount));
     }
 
+    /** Displays confirmation that a task was marked complete. */
     public void showMarkedTask(Task task) {
         showMessage("Nice! I've marked this task as done:\n\t  " + task
                 + "\n\tCooper would have loved that :)");
     }
 
+    /** Displays confirmation that a task was marked incomplete. */
     public void showUnmarkedTask(Task task) {
         showMessage("OK, I've marked this task as not done yet:\n\t  " + task + "\n\tKeep going! :)");
     }
 
-    /** Displays all tasks with one-based numbering. */
+    /** Displays all tasks with one-based numbering, or an empty-list message if necessary. */
     public void showTaskList(List<Task> tasks) {
         if (tasks.isEmpty()) {
             showMessage("No current tasks!");
@@ -78,15 +88,23 @@ public class Ui {
         showMessage(message.toString());
     }
 
+    /**
+     * Formats a date-time for display to the user.
+     *
+     * @param time date-time to format
+     * @return date-time in {@code MMM dd uuuu HH:mm} format
+     */
     public static String formatDate(LocalDateTime time) {
         return time.format(DISPLAY_FORMAT);
     }
 
+    /** Builds a task-count message with the correct singular or plural noun. */
     private String taskCountMessage(int taskCount) {
         String noun = taskCount == 1 ? "task" : "tasks";
         return String.format("\n\tNow you have %d %s in the list.", taskCount, noun);
     }
 
+    /** Displays a message between Cooper's standard separators. */
     private void showMessage(String message) {
         System.out.println(DASHES + '\t' + message + '\n' + DASHES);
     }
