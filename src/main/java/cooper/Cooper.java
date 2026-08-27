@@ -1,5 +1,12 @@
+package cooper;
+
+import cooper.exception.CooperException;
+import cooper.parser.Action;
+import cooper.parser.Parser;
+import cooper.storage.Storage;
 import cooper.task.Task;
 import cooper.task.TaskList;
+import cooper.ui.Ui;
 
 /** Coordinates Cooper's user interface, task list, parser, and storage. */
 public class Cooper {
@@ -73,28 +80,28 @@ public class Cooper {
         Action action = Parser.parseAction(input);
 
         switch (action) {
-        case LIST:
+        case Action.LIST:
             ui.showTaskList(tasks.asList());
             break;
-        case DELETE:
+        case Action.DELETE:
             handleDelete(input);
             break;
-        case MARK:
+        case Action.MARK:
             handleMark(input);
             break;
-        case UNMARK:
+        case Action.UNMARK:
             handleUnmark(input);
             break;
-        case TODO:
+        case Action.TODO:
             addTask(Parser.parseTodo(input));
             break;
-        case DEADLINE:
+        case Action.DEADLINE:
             addTask(Parser.parseDeadline(input));
             break;
-        case EVENT:
+        case Action.EVENT:
             addTask(Parser.parseEvent(input));
             break;
-        case BYE:
+        case Action.BYE:
             return true;
         default:
             throw new CooperException("Cooper doesn't understand this command :(");
