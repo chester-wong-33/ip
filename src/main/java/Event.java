@@ -8,6 +8,12 @@ public class Event extends Task {
         this.endDate = endDate;
     }
 
+    public Event(String description, boolean isDone, String startDate, String endDate) {
+        super(description, isDone);
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     @Override
     public String toString() {
         return "[E]" + super.toString() + String.format(" (from: %s to: %s)", startDate, endDate);

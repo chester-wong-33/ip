@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -9,10 +8,11 @@ public class Cooper {
     private static final String FILE_PATH = "data/cooper.txt";
 
     private final List<Task> checklist;
-    private Storage storage;
+    private final Storage storage;
 
     public Cooper() {
-        checklist = new ArrayList<>();
+        storage = new Storage(FILE_PATH);
+        checklist = storage.loadTasks();
     }
 
     private static Action parseAction(String input) throws CooperException {
@@ -51,42 +51,11 @@ public class Cooper {
         System.out.println(DASHES + '\t' + s + '\n' + DASHES);
     }
 
-//    private void writeToFile(Task task) {
-//        try {
-//            Files.createDirectories(Path.of("data"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        try (FileWriter fileWriter = new FileWriter(FILE_PATH, true)) {
-//            fileWriter.write(task.toDataString());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new CooperException("An error occurred writing to the file");
-//        }
-//    }
-
-//    private List<Task> readFromFile() {
-//        File dataFile = new File(FILE_PATH);
-//
-//        List<Task> taskList = new ArrayList<>();
-//
-//        try (Scanner fileReader = new Scanner(dataFile)) {
-//            while (fileReader.hasNextLine()) {
-//                String entry = fileReader.nextLine();
-//                Task currTask = parseTaskDataString(entry);
-//                taskList.add(currTask);
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//            throw new CooperException("An error occurred fetching the file");
-//        }
-//
-//        return taskList;
-//    }
-
     private void addTask(Task task) {
         checklist.add(task);
+
+        storage.saveTasks(checklist);
+
         String status = (checklist.size() == 1) ? "task" : "tasks";
 
         echo("Got it. I've added this task:\n\t  " + task +
@@ -123,6 +92,9 @@ public class Cooper {
 
         Task toRemove = checklist.get(idx - 1);
         checklist.remove(idx - 1);
+
+        storage.saveTasks(checklist);
+
         String status = (checklist.size() == 1) ? "task" : "tasks";
 
         echo("Noted. I've removed this task:\n\t  " + toRemove
@@ -141,6 +113,9 @@ public class Cooper {
         if (listNum > 0 && listNum <= checklist.size()) {
             Task currTask = checklist.get(listNum - 1);
             currTask.markAsDone();
+
+            storage.saveTasks(checklist);
+
             echo("Nice! I've marked this task as done:\n\t  " + currTask +
                     "\n\tCooper would have loved that :)");
         } else {
@@ -160,6 +135,9 @@ public class Cooper {
         if (listNum > 0 && listNum <= checklist.size()) {
             Task currTask = checklist.get(listNum - 1);
             currTask.markAsUndone();
+
+            storage.saveTasks(checklist);
+
             echo("OK, I've marked this task as not done yet:\n\t  " + currTask
                     + "\n\tKeep going! :)");
         } else {

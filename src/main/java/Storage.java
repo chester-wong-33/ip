@@ -16,58 +16,85 @@ public class Storage {
     private ToDo parseTodo(String line) {
         String[] params = line.split("\\|", -1);
 
-        if (params.length != 2) {
+        if (params.length != 3) {
             throw new CooperException("Improper ToDo format!");
         }
 
-        return new ToDo(params[1].trim());
+        boolean isDone = params[1].trim().equals("1");
+
+        return new ToDo(params[2].trim(), isDone);
     }
 
     private Deadline parseDeadline(String line) {
         String[] params = line.split("\\|", -1);
 
-        if (params.length != 3) {
-            throw new CooperException("Improper ToDo format!");
+        if (params.length != 4) {
+            throw new CooperException("Improper Deadline format!");
         }
 
-        return new Deadline(params[1].trim(), params[2].trim());
+        boolean isDone = params[1].trim().equals("1");
+
+        return new Deadline(params[2].trim(), isDone, params[3].trim());
     }
 
     private Event parseEvent(String line) {
         String[] params = line.split("\\|", -1);
 
-        if (params.length != 4) {
-            throw new CooperException("Improper ToDo format!");
+        if (params.length != 5) {
+            throw new CooperException("Improper Event format!");
         }
 
-        return new Event(params[1].trim(), params[2].trim(), params[3].trim());
+        boolean isDone = params[1].trim().equals("1");
+
+        return new Event(params[2].trim(), isDone, params[3].trim(), params[4].trim());
     }
 
     public List<Task> loadTasks() {
         List<Task> taskList = new ArrayList<>();
+        Path path = Path.of(filePath);
 
-        try (Scanner fileReader = new Scanner(Path.of(filePath))) {
-            while (fileReader.hasNextLine()) {
-                String entry = fileReader.nextLine();
-                taskList.add(decodeTask(entry));
+        try {
+            Path parentDirectory = path.getParent();
+
+            if (parentDirectory != null) {
+                Files.createDirectories(parentDirectory);
+            }
+
+            if (Files.notExists(path)) {
+                Files.createFile(path);
+                return taskList;
+            }
+
+            try (Scanner fileReader = new Scanner(path)) {
+                while (fileReader.hasNextLine()) {
+                    String entry = fileReader.nextLine();
+                    taskList.add(decodeTask(entry));
+                }
             }
         } catch (IOException e) {
-            throw new CooperException("Error occurred in opening file!");
+            throw new CooperException("Unable to load task data.");
         }
 
         return taskList;
     }
 
     public void saveTasks(List<Task> tasks) {
+
+        Path path = Path.of(filePath);
+        Path parent = path.getParent();
+
         try {
-            Files.createDirectories(Path.of("data"));
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
         } catch (IOException e) {
             throw new CooperException("Error in creating new file directory!");
         }
 
-        try (FileWriter fileWriter = new FileWriter(filePath, true)) {
+        try (FileWriter fileWriter = new FileWriter(filePath)) {
             for (Task task : tasks) {
                 fileWriter.write(task.toDataString());
+                fileWriter.write(System.lineSeparator());
             }
         } catch (IOException e) {
             throw new CooperException("Error in writing to the file!");
@@ -77,11 +104,18 @@ public class Storage {
     public Task decodeTask(String line) {
         String[] params = line.split("\\|", -1);
 
-        if (params[0].trim().length() != 1) {
+        if (params.length < 3) {
+            throw new CooperException("Improper entry format");
+        }
+
+        String type = params[0].trim();
+        String isDone = params[1].trim();
+
+        if (type.length() != 1 || (!isDone.equals("0") && !isDone.equals("1"))) {
             throw new CooperException("Improper entry format!");
         }
 
-        char c = params[0].charAt(0);
+        char c = type.charAt(0);
 
         switch (c) {
             case 'T': {
