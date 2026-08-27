@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -6,8 +5,15 @@ public class Cooper {
 
     private static final String DASHES = "\t_*_*_*______________________________________________________\n";
     private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
+    private static final String FILE_PATH = "data/cooper.txt";
 
     private final List<Task> checklist;
+    private final Storage storage;
+
+    public Cooper() {
+        storage = new Storage(FILE_PATH);
+        checklist = storage.loadTasks();
+    }
 
     private static Action parseAction(String input) throws CooperException {
         String trimmedInput = input.trim();
@@ -41,16 +47,15 @@ public class Cooper {
         return num;
     }
 
-    public Cooper() {
-        checklist = new ArrayList<>();
-    }
-
     private void echo(String s) {
         System.out.println(DASHES + '\t' + s + '\n' + DASHES);
     }
 
     private void addTask(Task task) {
         checklist.add(task);
+
+        storage.saveTasks(checklist);
+
         String status = (checklist.size() == 1) ? "task" : "tasks";
 
         echo("Got it. I've added this task:\n\t  " + task +
@@ -87,6 +92,9 @@ public class Cooper {
 
         Task toRemove = checklist.get(idx - 1);
         checklist.remove(idx - 1);
+
+        storage.saveTasks(checklist);
+
         String status = (checklist.size() == 1) ? "task" : "tasks";
 
         echo("Noted. I've removed this task:\n\t  " + toRemove
@@ -105,6 +113,9 @@ public class Cooper {
         if (listNum > 0 && listNum <= checklist.size()) {
             Task currTask = checklist.get(listNum - 1);
             currTask.markAsDone();
+
+            storage.saveTasks(checklist);
+
             echo("Nice! I've marked this task as done:\n\t  " + currTask +
                     "\n\tCooper would have loved that :)");
         } else {
@@ -124,6 +135,9 @@ public class Cooper {
         if (listNum > 0 && listNum <= checklist.size()) {
             Task currTask = checklist.get(listNum - 1);
             currTask.markAsUndone();
+
+            storage.saveTasks(checklist);
+
             echo("OK, I've marked this task as not done yet:\n\t  " + currTask
                     + "\n\tKeep going! :)");
         } else {
