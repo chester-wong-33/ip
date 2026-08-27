@@ -5,7 +5,9 @@ import cooper.exception.CooperException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Owns the application's task collection and its list operations. */
+/**
+ * Owns the application's task collection and its list operations.
+ */
 public class TaskList {
     private final List<Task> tasks;
 
@@ -27,7 +29,7 @@ public class TaskList {
     /**
      * Returns the task at a one-based task number.
      *
-     * @throws CooperException if the task number is outside the list
+     * @throws CooperException If the task number is outside the list.
      */
     public Task get(int taskNumber) {
         validateTaskNumber(taskNumber);
@@ -42,7 +44,7 @@ public class TaskList {
     /**
      * Removes and returns the task at a one-based task number.
      *
-     * @throws CooperException if the task number is outside the list
+     * @throws CooperException If the task number is outside the list.
      */
     public Task delete(int taskNumber) {
         validateTaskNumber(taskNumber);

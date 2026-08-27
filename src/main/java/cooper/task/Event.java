@@ -4,7 +4,9 @@ import cooper.ui.Ui;
 
 import java.time.LocalDateTime;
 
-/** Represents a task that takes place over a specified date-time range. */
+/**
+ * Represents a task that takes place over a specified date-time range.
+ */
 public class Event extends Task {
     private final LocalDateTime startDate;
     private final LocalDateTime endDate;

@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-/** Loads tasks from and saves tasks to a data file. */
+/**
+ * Loads tasks from and saves tasks to a data file.
+ */
 public class Storage {
     private final String filePath;
 
@@ -69,8 +71,8 @@ public class Storage {
     /**
      * Loads all tasks from the data file, creating the file and its parent directories if absent.
      *
-     * @return tasks decoded from the data file
-     * @throws CooperException if the file cannot be read or created
+     * @return Tasks decoded from the data file.
+     * @throws CooperException If the file cannot be read or created.
      */
     public List<Task> loadTasks() {
         List<Task> taskList = new ArrayList<>();
@@ -104,8 +106,8 @@ public class Storage {
     /**
      * Replaces the contents of the data file with the supplied tasks.
      *
-     * @param tasks tasks to persist in their current order
-     * @throws CooperException if the directory or file cannot be written
+     * @param tasks Tasks to persist in their current order.
+     * @throws CooperException If the directory or file cannot be written.
      */
     public void saveTasks(List<Task> tasks) {
 
@@ -133,9 +135,9 @@ public class Storage {
     /**
      * Decodes one storage entry into its corresponding task subtype.
      *
-     * @param line pipe-delimited storage entry
-     * @return decoded todo, deadline, or event
-     * @throws CooperException if the entry structure, status, or task type is invalid
+     * @param line Pipe-delimited storage entry.
+     * @return Decoded todo, deadline, or event.
+     * @throws CooperException If the entry structure, status, or task type is invalid.
      */
     public Task decodeTask(String line) {
         String[] params = line.split("\\|", -1);
