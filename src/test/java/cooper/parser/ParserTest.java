@@ -8,11 +8,112 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import cooper.exception.CooperException;
+import cooper.task.Deadline;
+import cooper.task.Event;
+import cooper.task.ToDo;
 
 /** Tests the conversion of supported date strings into {@link LocalDateTime} values. */
 public class ParserTest {
     private static final String INVALID_DATE_MESSAGE =
             "Invalid date. Use yyyy-MM-dd or dd-MM-yyyy, and HH:mm optionally.";
+
+    @Test
+    public void parseAction_knownCommandWithMixedCaseAndWhitespace_returnsAction() {
+        assertEquals(Action.TODO, Parser.parseAction("  ToDo read a book  "));
+    }
+
+    @Test
+    public void parseAction_emptyInput_throwsCooperException() {
+        CooperException exception = assertThrows(CooperException.class,
+                () -> Parser.parseAction("   "));
+
+        assertEquals("Please enter a command!", exception.getMessage());
+    }
+
+    @Test
+    public void parseAction_unknownCommand_throwsCooperException() {
+        CooperException exception = assertThrows(CooperException.class,
+                () -> Parser.parseAction("dance now"));
+
+        assertEquals("Cooper doesn't understand this command: dance", exception.getMessage());
+    }
+
+    @Test
+    public void parseTaskNumber_positiveInteger_returnsTaskNumber() {
+        assertEquals(1, Parser.parseTaskNumber("mark 1", "syntax error"));
+        assertEquals(123, Parser.parseTaskNumber("delete 123", "syntax error"));
+    }
+
+    @Test
+    public void parseTaskNumber_wrongNumberOfArguments_throwsSyntaxError() {
+        CooperException missingIndex = assertThrows(CooperException.class,
+                () -> Parser.parseTaskNumber("mark", "syntax error"));
+        CooperException extraArgument = assertThrows(CooperException.class,
+                () -> Parser.parseTaskNumber("mark 1 now", "syntax error"));
+
+        assertEquals("syntax error", missingIndex.getMessage());
+        assertEquals("syntax error", extraArgument.getMessage());
+    }
+
+    @Test
+    public void parseTaskNumber_nonPositiveOrNonNumericIndex_throwsCooperException() {
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
+                () -> Parser.parseTaskNumber("mark 0", "syntax error")).getMessage());
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
+                () -> Parser.parseTaskNumber("mark -1", "syntax error")).getMessage());
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
+                () -> Parser.parseTaskNumber("mark one", "syntax error")).getMessage());
+    }
+
+    @Test
+    public void parseTodo_descriptionPresent_returnsTodo() {
+        ToDo todo = Parser.parseTodo("todo read a book");
+
+        assertEquals("T | 0 | read a book", todo.toDataString());
+    }
+
+    @Test
+    public void parseTodo_missingDescription_throwsCooperException() {
+        CooperException exception = assertThrows(CooperException.class,
+                () -> Parser.parseTodo("todo"));
+
+        assertEquals("Cooper notices that your todo is empty. That's impossible!",
+                exception.getMessage());
+    }
+
+    @Test
+    public void parseDeadline_validCommand_returnsDeadline() {
+        Deadline deadline = Parser.parseDeadline("deadline submit report /by 2026-08-30 23:59");
+
+        assertEquals("D | 0 | submit report | 2026-08-30T23:59", deadline.toDataString());
+    }
+
+    @Test
+    public void parseDeadline_missingTitleOrDelimiter_throwsCooperException() {
+        assertEquals("Cooper can't keep track of tasks with no name!", assertThrows(CooperException.class,
+                () -> Parser.parseDeadline("deadline /by 2026-08-30")).getMessage());
+        assertEquals("Cooper feels a task can only have exactly 1 deadline!",
+                assertThrows(CooperException.class,
+                        () -> Parser.parseDeadline("deadline submit report 2026-08-30")).getMessage());
+    }
+
+    @Test
+    public void parseEvent_validCommand_returnsEvent() {
+        Event event = Parser.parseEvent(
+                "event project meeting /from 2026-08-30 14:00 /to 2026-08-30 16:00");
+
+        assertEquals("E | 0 | project meeting | 2026-08-30T14:00 | 2026-08-30T16:00",
+                event.toDataString());
+    }
+
+    @Test
+    public void parseEvent_missingTitleOrFromDelimiter_throwsCooperException() {
+        assertEquals("Cooper thinks we need a title!", assertThrows(CooperException.class,
+                () -> Parser.parseEvent("event /from 2026-08-30 /to 2026-08-31")).getMessage());
+        assertEquals("Cooper feels an event must have a title and start date!",
+                assertThrows(CooperException.class,
+                        () -> Parser.parseEvent("event project meeting /to 2026-08-31")).getMessage());
+    }
 
     @Test
     public void parseDate_yearMonthDayDate_returnsStartOfDay() {
