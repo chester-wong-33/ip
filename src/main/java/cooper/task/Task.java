@@ -38,6 +38,11 @@ public class Task {
         isDone = false;
     }
 
+    /** Returns whether this task's description contains the specified keyword. */
+    public boolean containsKeyword(String keyword) {
+        return description.contains(keyword);
+    }
+
     private String getStatusIcon() {
         return (isDone ? "X" : " ");
     }

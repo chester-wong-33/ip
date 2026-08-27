@@ -66,6 +66,21 @@ public class Parser {
     }
 
     /**
+     * Parses the keyword from a find command.
+     *
+     * @param input Complete find command.
+     * @return Non-empty keyword supplied by the user.
+     * @throws CooperException If the keyword is missing.
+     */
+    public static String parseFindKeyword(String input) {
+        String[] parameters = input.trim().split("\\s+", 2);
+        if (parameters.length != 2 || parameters[1].isBlank()) {
+            throw new CooperException("Cooper needs a keyword to find matching tasks!");
+        }
+        return parameters[1].trim();
+    }
+
+    /**
      * Creates a todo task from a todo command.
      *
      * @param input Complete todo command.

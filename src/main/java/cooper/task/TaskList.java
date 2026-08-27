@@ -56,6 +56,22 @@ public class TaskList {
         return List.copyOf(tasks);
     }
 
+    /**
+     * Returns a snapshot of tasks whose descriptions contain the specified keyword.
+     *
+     * @param keyword Keyword to search for.
+     * @return Matching tasks in their original list order.
+     */
+    public List<Task> find(String keyword) {
+        List<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.containsKeyword(keyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return List.copyOf(matchingTasks);
+    }
+
     /** Ensures a one-based task number refers to a task currently in the list. */
     private void validateTaskNumber(int taskNumber) {
         if (taskNumber <= 0 || taskNumber > tasks.size()) {
