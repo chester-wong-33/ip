@@ -13,6 +13,6 @@ public class Deadline extends Task {
 
     @Override
     public String toDataString() {
-        return String.format("%s | %s | %s", "[E]", super.toString(), dueDate);
+        return String.format("%s | %s | %s", "E", super.toDataString(), dueDate);
     }
 }

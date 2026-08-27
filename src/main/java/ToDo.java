@@ -11,6 +11,6 @@ public class ToDo extends Task {
 
     @Override
     public String toDataString() {
-        return String.format("%s | %s", "[D]", super.toString());
+        return String.format("%s | %s", "D", super.toDataString());
     }
 }

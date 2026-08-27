@@ -15,6 +15,6 @@ public class Event extends Task {
 
     @Override
     public String toDataString() {
-        return String.format("%s | %s | %s | %s", "[E]", super.toString(), startDate, endDate);
+        return String.format("%s | %s | %s | %s", "E", super.toDataString(), startDate, endDate);
     }
 }

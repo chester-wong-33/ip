@@ -6,8 +6,14 @@ public class Cooper {
 
     private static final String DASHES = "\t_*_*_*______________________________________________________\n";
     private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
+    private static final String FILE_PATH = "data/cooper.txt";
 
     private final List<Task> checklist;
+    private Storage storage;
+
+    public Cooper() {
+        checklist = new ArrayList<>();
+    }
 
     private static Action parseAction(String input) throws CooperException {
         String trimmedInput = input.trim();
@@ -41,13 +47,43 @@ public class Cooper {
         return num;
     }
 
-    public Cooper() {
-        checklist = new ArrayList<>();
-    }
-
     private void echo(String s) {
         System.out.println(DASHES + '\t' + s + '\n' + DASHES);
     }
+
+//    private void writeToFile(Task task) {
+//        try {
+//            Files.createDirectories(Path.of("data"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try (FileWriter fileWriter = new FileWriter(FILE_PATH, true)) {
+//            fileWriter.write(task.toDataString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new CooperException("An error occurred writing to the file");
+//        }
+//    }
+
+//    private List<Task> readFromFile() {
+//        File dataFile = new File(FILE_PATH);
+//
+//        List<Task> taskList = new ArrayList<>();
+//
+//        try (Scanner fileReader = new Scanner(dataFile)) {
+//            while (fileReader.hasNextLine()) {
+//                String entry = fileReader.nextLine();
+//                Task currTask = parseTaskDataString(entry);
+//                taskList.add(currTask);
+//            }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//            throw new CooperException("An error occurred fetching the file");
+//        }
+//
+//        return taskList;
+//    }
 
     private void addTask(Task task) {
         checklist.add(task);
