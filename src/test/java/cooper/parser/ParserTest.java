@@ -66,6 +66,19 @@ public class ParserTest {
     }
 
     @Test
+    public void parseFindKeyword_keywordPresent_returnsKeyword() {
+        assertEquals("project book", Parser.parseFindKeyword("  find   project book  "));
+    }
+
+    @Test
+    public void parseFindKeyword_keywordMissing_throwsCooperException() {
+        CooperException exception = assertThrows(CooperException.class,
+                () -> Parser.parseFindKeyword("find   "));
+
+        assertEquals("Cooper needs a keyword to find matching tasks!", exception.getMessage());
+    }
+
+    @Test
     public void parseTodo_descriptionPresent_returnsTodo() {
         ToDo todo = Parser.parseTodo("todo read a book");
 

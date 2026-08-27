@@ -65,6 +65,23 @@ public class TaskListTest {
         assertEquals(2, tasks.size());
     }
 
+    @Test
+    public void find_keywordMatchesSomeDescriptions_returnsMatchesInOriginalOrder() {
+        Task firstMatch = new ToDo("read book");
+        Task nonMatch = new ToDo("buy groceries");
+        Task secondMatch = new ToDo("return book");
+        TaskList tasks = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+
+        assertEquals(List.of(firstMatch, secondMatch), tasks.find("book"));
+    }
+
+    @Test
+    public void find_keywordDoesNotMatch_returnsEmptyList() {
+        TaskList tasks = new TaskList(List.of(new ToDo("read book")));
+
+        assertEquals(List.of(), tasks.find("movie"));
+    }
+
     private static void assertInvalidIndex(Runnable operation) {
         CooperException exception = assertThrows(CooperException.class, operation::run);
         assertEquals("Cooper couldn't find a task with that index :(", exception.getMessage());
