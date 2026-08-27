@@ -1,4 +1,10 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Cooper {
@@ -6,6 +12,16 @@ public class Cooper {
     private static final String DASHES = "\t_*_*_*______________________________________________________\n";
     private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
     private static final String FILE_PATH = "data/cooper.txt";
+    private static final List<DateTimeFormatter> DATE_TIME_FORMATS = List.of(
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("dd-MM-uuuu HH:mm").withResolverStyle(ResolverStyle.STRICT)
+    );
+    private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
+            DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT)
+    );
+    private static final DateTimeFormatter DISPLAY_FORMAT
+            = DateTimeFormatter.ofPattern("MMM dd uuuu HH:mm", Locale.ENGLISH);
 
     private final List<Task> checklist;
     private final Storage storage;
@@ -29,6 +45,33 @@ public class Cooper {
         } catch (IllegalArgumentException e) {
             throw new CooperException("Cooper doesn't understand this command: " + cmd);
         }
+    }
+
+    public static LocalDateTime parseDate(String time) {
+        String normalizedTime = time.trim().replace('/', '-');
+
+        for (DateTimeFormatter formatter : DATE_TIME_FORMATS) {
+            try {
+                return LocalDateTime.parse(normalizedTime, formatter);
+            } catch (DateTimeParseException ignored) {
+                // Nothing, try next date-time format
+            }
+        }
+
+        for (DateTimeFormatter formatter : DATE_FORMATS) {
+            try {
+                return LocalDate.parse(normalizedTime, formatter).atStartOfDay();
+            } catch (DateTimeParseException ignored) {
+                // Nothing, try next date-time format
+            }
+        }
+
+        throw new CooperException("Invalid date. Use yyyy-MM-dd or dd-MM-yyyy, and HH:mm optionally.");
+    }
+
+    public static String parseDateString(LocalDateTime time) {
+
+        return time.format(DISPLAY_FORMAT);
     }
 
     private static int wordToNum(String numString) {
@@ -170,7 +213,7 @@ public class Cooper {
         String taskName = params[0].split("deadline ")[1];
         String dueDate = params[1];
 
-        Deadline newDeadline = new Deadline(taskName, dueDate);
+        Deadline newDeadline = new Deadline(taskName, parseDate(dueDate));
         addTask(newDeadline);
     }
 
@@ -189,7 +232,7 @@ public class Cooper {
         String startDate = params[1].split(" /to ")[0];
         String endDate = params[1].split(" /to ")[1];
 
-        Event newEvent = new Event(taskName, startDate, endDate);
+        Event newEvent = new Event(taskName, parseDate(startDate), parseDate(endDate));
         addTask(newEvent);
     }
 

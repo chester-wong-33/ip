@@ -1,14 +1,16 @@
-public class Event extends Task {
-    private final String startDate;
-    private final String endDate;
+import java.time.LocalDateTime;
 
-    public Event(String description, String startDate, String endDate) {
+public class Event extends Task {
+    private final LocalDateTime startDate;
+    private final LocalDateTime endDate;
+
+    public Event(String description, LocalDateTime startDate, LocalDateTime endDate) {
         super(description);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public Event(String description, boolean isDone, String startDate, String endDate) {
+    public Event(String description, boolean isDone, LocalDateTime startDate, LocalDateTime endDate) {
         super(description, isDone);
         this.startDate = startDate;
         this.endDate = endDate;
@@ -16,11 +18,14 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + String.format(" (from: %s to: %s)", startDate, endDate);
+        return "[E]" + super.toString()
+                + String.format(" (from: %s to: %s)",
+                Cooper.parseDateString(startDate), Cooper.parseDateString(endDate));
     }
 
     @Override
     public String toDataString() {
-        return String.format("%s | %s | %s | %s", "E", super.toDataString(), startDate, endDate);
+        return String.format("%s | %s | %s | %s", "E",
+                super.toDataString(), startDate, endDate);
     }
 }

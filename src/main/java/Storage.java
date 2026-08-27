@@ -2,6 +2,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -33,8 +34,9 @@ public class Storage {
         }
 
         boolean isDone = params[1].trim().equals("1");
+        LocalDateTime dueDate = LocalDateTime.parse(params[3].trim());
 
-        return new Deadline(params[2].trim(), isDone, params[3].trim());
+        return new Deadline(params[2].trim(), isDone, dueDate);
     }
 
     private Event parseEvent(String line) {
@@ -45,8 +47,10 @@ public class Storage {
         }
 
         boolean isDone = params[1].trim().equals("1");
+        LocalDateTime startDate = LocalDateTime.parse(params[3].trim());
+        LocalDateTime endDate = LocalDateTime.parse(params[4].trim());
 
-        return new Event(params[2].trim(), isDone, params[3].trim(), params[4].trim());
+        return new Event(params[2].trim(), isDone, startDate, endDate);
     }
 
     public List<Task> loadTasks() {
