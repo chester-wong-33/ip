@@ -1,12 +1,12 @@
 package cooper.ui;
 
-import cooper.task.Task;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+
+import cooper.task.Task;
 
 /**
  * Handles all text-based interaction with the user.

@@ -44,12 +44,12 @@ public class StorageTest {
     @Test
     public void decodeTask_invalidEntryHeader_throwsCooperException() {
         assertThrows(CooperException.class, () -> new Storage("unused").decodeTask("T | description"));
-        assertThrows(CooperException.class,
-                () -> new Storage("unused").decodeTask("TODO | 0 | description"));
-        assertThrows(CooperException.class,
-                () -> new Storage("unused").decodeTask("T | yes | description"));
-        assertThrows(CooperException.class,
-                () -> new Storage("unused").decodeTask("X | 0 | description"));
+        assertThrows(CooperException.class, () ->
+                new Storage("unused").decodeTask("TODO | 0 | description"));
+        assertThrows(CooperException.class, () ->
+                new Storage("unused").decodeTask("T | yes | description"));
+        assertThrows(CooperException.class, () ->
+                new Storage("unused").decodeTask("X | 0 | description"));
     }
 
     @Test
@@ -58,8 +58,8 @@ public class StorageTest {
 
         assertThrows(CooperException.class, () -> storage.decodeTask("T | 0 | todo | extra"));
         assertThrows(CooperException.class, () -> storage.decodeTask("D | 0 | deadline"));
-        assertThrows(CooperException.class,
-                () -> storage.decodeTask("E | 0 | event | 2026-08-30T14:00"));
+        assertThrows(CooperException.class, () ->
+                storage.decodeTask("E | 0 | event | 2026-08-30T14:00"));
     }
 
     @Test

@@ -1,11 +1,5 @@
 package cooper.storage;
 
-import cooper.exception.CooperException;
-import cooper.task.Deadline;
-import cooper.task.Event;
-import cooper.task.Task;
-import cooper.task.ToDo;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import cooper.exception.CooperException;
+import cooper.task.Deadline;
+import cooper.task.Event;
+import cooper.task.Task;
+import cooper.task.ToDo;
 
 /**
  * Loads tasks from and saves tasks to a data file.

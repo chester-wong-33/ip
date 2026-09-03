@@ -1,9 +1,9 @@
 package cooper.task;
 
-import cooper.exception.CooperException;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import cooper.exception.CooperException;
 
 /**
  * Owns the application's task collection and its list operations.

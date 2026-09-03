@@ -1,16 +1,16 @@
 package cooper.parser;
 
-import cooper.exception.CooperException;
-import cooper.task.Deadline;
-import cooper.task.Event;
-import cooper.task.ToDo;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.List;
+
+import cooper.exception.CooperException;
+import cooper.task.Deadline;
+import cooper.task.Event;
+import cooper.task.ToDo;
 
 /**
  * Converts user input into actions, task numbers, and task objects.

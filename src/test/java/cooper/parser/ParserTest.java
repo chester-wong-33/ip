@@ -24,16 +24,16 @@ public class ParserTest {
 
     @Test
     public void parseAction_emptyInput_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseAction("   "));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseAction("   "));
 
         assertEquals("Please enter a command!", exception.getMessage());
     }
 
     @Test
     public void parseAction_unknownCommand_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseAction("dance now"));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseAction("dance now"));
 
         assertEquals("Cooper doesn't understand this command: dance", exception.getMessage());
     }
@@ -46,10 +46,10 @@ public class ParserTest {
 
     @Test
     public void parseTaskNumber_wrongNumberOfArguments_throwsSyntaxError() {
-        CooperException missingIndex = assertThrows(CooperException.class,
-                () -> Parser.parseTaskNumber("mark", "syntax error"));
-        CooperException extraArgument = assertThrows(CooperException.class,
-                () -> Parser.parseTaskNumber("mark 1 now", "syntax error"));
+        CooperException missingIndex = assertThrows(CooperException.class, () ->
+                Parser.parseTaskNumber("mark", "syntax error"));
+        CooperException extraArgument = assertThrows(CooperException.class, () ->
+                Parser.parseTaskNumber("mark 1 now", "syntax error"));
 
         assertEquals("syntax error", missingIndex.getMessage());
         assertEquals("syntax error", extraArgument.getMessage());
@@ -57,12 +57,12 @@ public class ParserTest {
 
     @Test
     public void parseTaskNumber_nonPositiveOrNonNumericIndex_throwsCooperException() {
-        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
-                () -> Parser.parseTaskNumber("mark 0", "syntax error")).getMessage());
-        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
-                () -> Parser.parseTaskNumber("mark -1", "syntax error")).getMessage());
-        assertEquals("The index isn't valid!", assertThrows(CooperException.class,
-                () -> Parser.parseTaskNumber("mark one", "syntax error")).getMessage());
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class, () ->
+                Parser.parseTaskNumber("mark 0", "syntax error")).getMessage());
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class, () ->
+                Parser.parseTaskNumber("mark -1", "syntax error")).getMessage());
+        assertEquals("The index isn't valid!", assertThrows(CooperException.class, () ->
+                Parser.parseTaskNumber("mark one", "syntax error")).getMessage());
     }
 
     @Test
@@ -72,8 +72,8 @@ public class ParserTest {
 
     @Test
     public void parseFindKeyword_keywordMissing_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseFindKeyword("find   "));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseFindKeyword("find   "));
 
         assertEquals("Cooper needs a keyword to find matching tasks!", exception.getMessage());
     }
@@ -87,8 +87,8 @@ public class ParserTest {
 
     @Test
     public void parseTodo_missingDescription_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseTodo("todo"));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseTodo("todo"));
 
         assertEquals("Cooper notices that your todo is empty. That's impossible!",
                 exception.getMessage());
@@ -103,11 +103,11 @@ public class ParserTest {
 
     @Test
     public void parseDeadline_missingTitleOrDelimiter_throwsCooperException() {
-        assertEquals("Cooper can't keep track of tasks with no name!", assertThrows(CooperException.class,
-                () -> Parser.parseDeadline("deadline /by 2026-08-30")).getMessage());
+        assertEquals("Cooper can't keep track of tasks with no name!", assertThrows(CooperException.class, () ->
+                Parser.parseDeadline("deadline /by 2026-08-30")).getMessage());
         assertEquals("Cooper feels a task can only have exactly 1 deadline!",
-                assertThrows(CooperException.class,
-                        () -> Parser.parseDeadline("deadline submit report 2026-08-30")).getMessage());
+                assertThrows(CooperException.class, () ->
+                        Parser.parseDeadline("deadline submit report 2026-08-30")).getMessage());
     }
 
     @Test
@@ -121,11 +121,11 @@ public class ParserTest {
 
     @Test
     public void parseEvent_missingTitleOrFromDelimiter_throwsCooperException() {
-        assertEquals("Cooper thinks we need a title!", assertThrows(CooperException.class,
-                () -> Parser.parseEvent("event /from 2026-08-30 /to 2026-08-31")).getMessage());
+        assertEquals("Cooper thinks we need a title!", assertThrows(CooperException.class, () ->
+                Parser.parseEvent("event /from 2026-08-30 /to 2026-08-31")).getMessage());
         assertEquals("Cooper feels an event must have a title and start date!",
-                assertThrows(CooperException.class,
-                        () -> Parser.parseEvent("event project meeting /to 2026-08-31")).getMessage());
+                assertThrows(CooperException.class, () ->
+                        Parser.parseEvent("event project meeting /to 2026-08-31")).getMessage());
     }
 
     @Test
@@ -162,24 +162,24 @@ public class ParserTest {
 
     @Test
     public void parseDate_invalidCalendarDate_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseDate("2025-02-29"));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseDate("2025-02-29"));
 
         assertEquals(INVALID_DATE_MESSAGE, exception.getMessage());
     }
 
     @Test
     public void parseDate_invalidTime_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseDate("2026-08-28 24:00"));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseDate("2026-08-28 24:00"));
 
         assertEquals(INVALID_DATE_MESSAGE, exception.getMessage());
     }
 
     @Test
     public void parseDate_unsupportedFormat_throwsCooperException() {
-        CooperException exception = assertThrows(CooperException.class,
-                () -> Parser.parseDate("August 28, 2026"));
+        CooperException exception = assertThrows(CooperException.class, () ->
+                Parser.parseDate("August 28, 2026"));
 
         assertEquals(INVALID_DATE_MESSAGE, exception.getMessage());
     }

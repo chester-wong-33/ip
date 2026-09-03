@@ -1,8 +1,8 @@
 package cooper.task;
 
-import cooper.ui.Ui;
-
 import java.time.LocalDateTime;
+
+import cooper.ui.Ui;
 
 /**
  * Represents a task that takes place over a specified date-time range.
@@ -30,7 +30,7 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString()
                 + String.format(" (from: %s to: %s)",
-                Ui.formatDate(startDate), Ui.formatDate(endDate));
+                        Ui.formatDate(startDate), Ui.formatDate(endDate));
     }
 
     /** Returns the storage representation of this event. */

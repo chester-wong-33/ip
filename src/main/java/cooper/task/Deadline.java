@@ -1,8 +1,8 @@
 package cooper.task;
 
-import cooper.ui.Ui;
-
 import java.time.LocalDateTime;
+
+import cooper.ui.Ui;
 
 /**
  * Represents a task that must be completed by a specific date and time.
