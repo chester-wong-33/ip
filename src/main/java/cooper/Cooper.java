@@ -14,6 +14,8 @@ import cooper.ui.Ui;
 public class Cooper {
     private static final String FILE_PATH = "data/cooper.txt";
 
+    /** Records whether startup recovered from an unreadable saved-task file. */
+    private boolean loadingFailed;
     private final TaskList tasks;
     private final Storage storage;
     private final Ui ui;
@@ -37,7 +39,7 @@ public class Cooper {
         try {
             loadedTasks = new TaskList(storage.loadTasks());
         } catch (CooperException e) {
-            ui.showLoadingError();
+            loadingFailed = true;
             loadedTasks = new TaskList();
         }
         tasks = loadedTasks;
@@ -49,98 +51,115 @@ public class Cooper {
     }
 
     /** Adds, saves, and displays a newly parsed task. */
-    private void addTask(Task task) {
+    private String addTask(Task task) {
         tasks.add(task);
         saveTasks();
-        ui.showAddedTask(task, tasks.size());
+        return ui.getAddedTaskMessage(task, tasks.size());
     }
 
     /** Parses and executes a delete command, then persists the updated list. */
-    private void handleDelete(String input) {
+    private String handleDelete(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Deleting is serious! Cooper wishes you provided a proper index only.");
         Task removedTask = tasks.delete(taskNumber);
         saveTasks();
-        ui.showDeletedTask(removedTask, tasks.size());
+        return ui.getDeletedTaskMessage(removedTask, tasks.size());
     }
 
     /** Parses and executes a mark command, then persists the updated task. */
-    private void handleMark(String input) {
+    private String handleMark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Invalid syntax :( Cooper would like you to follow the format: mark <task-number>");
         Task task = tasks.get(taskNumber);
         task.markAsDone();
         saveTasks();
-        ui.showMarkedTask(task);
+        return ui.getMarkedTaskMessage(task);
     }
 
     /** Parses and executes an unmark command, then persists the updated task. */
-    private void handleUnmark(String input) {
+    private String handleUnmark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Invalid syntax :( Cooper would like you to follow the format: unmark <task-number>");
         Task task = tasks.get(taskNumber);
         task.markAsUndone();
         saveTasks();
-        ui.showUnmarkedTask(task);
+        return ui.getUnmarkedTaskMessage(task);
     }
 
     /**
-     * Executes one user command.
+     * Executes one user command and returns its response.
      *
-     * @return True if Cooper should exit.
+     * @param input User command to execute.
+     * @return Response produced by the command.
      */
-    private boolean executeCommand(String input) {
+    private String executeCommand(String input) {
         Action action = Parser.parseAction(input);
 
         switch (action) {
             case Action.LIST:
-                ui.showTaskList(tasks.asList());
-                break;
+                return ui.getTaskListMessage(tasks.asList());
             case Action.DELETE:
-                handleDelete(input);
-                break;
+                return handleDelete(input);
             case Action.MARK:
-                handleMark(input);
-                break;
+                return handleMark(input);
             case Action.UNMARK:
-                handleUnmark(input);
-                break;
+                return handleUnmark(input);
             case Action.TODO:
-                addTask(Parser.parseTodo(input));
-                break;
+                return addTask(Parser.parseTodo(input));
             case Action.DEADLINE:
-                addTask(Parser.parseDeadline(input));
-                break;
+                return addTask(Parser.parseDeadline(input));
             case Action.EVENT:
-                addTask(Parser.parseEvent(input));
-                break;
+                return addTask(Parser.parseEvent(input));
             case Action.FIND:
-                ui.showMatchingTasks(tasks.find(Parser.parseFindKeyword(input)));
-                break;
+                return ui.getMatchingTasksMessage(tasks.find(Parser.parseFindKeyword(input)));
             case Action.BYE:
-                return true;
+                return ui.getByeMessage();
             default:
                 throw new CooperException("Cooper doesn't understand this command :(");
         }
-        return false;
+    }
+
+    /**
+     * Executes one command and returns Cooper's response and exit status.
+     * The action is intentionally parsed here to determine the exit status and
+     * parsed again by {@link #executeCommand(String)} when the command is run.
+     *
+     * @param input User command to process.
+     * @return Cooper's response to the command and whether Cooper should exit.
+     */
+    public CommandResult getResponse(String input) {
+        try {
+            Action action = Parser.parseAction(input);
+            String response = executeCommand(input);
+            return new CommandResult(response, action == Action.BYE);
+        } catch (CooperException e) {
+            return new CommandResult(e.getMessage(), false);
+        }
+    }
+
+    /**
+     * Returns welcome message that should be displayed when Cooper starts.
+     *
+     * @return Welcome text, including a loading warning when loading failed.
+     */
+    public String getStartupMessage() {
+        if (loadingFailed) {
+            return ui.getLoadingErrorMessage() + "\n\n" + ui.getWelcomeMessage();
+        }
+        return ui.getWelcomeMessage();
     }
 
     /** Runs the command-reading loop until the user exits or input ends. */
     public void run() {
-        ui.showWelcome();
+        System.out.println(getStartupMessage());
 
         while (ui.hasNextCommand()) {
-            String input = ui.readCommand();
-            try {
-                if (executeCommand(input)) {
-                    break;
-                }
-            } catch (CooperException e) {
-                ui.showError(e.getMessage());
+            CommandResult result = getResponse(ui.readCommand());
+            System.out.println(result.message());
+            if (result.shouldExit()) {
+                break;
             }
         }
-
-        ui.showGoodbye();
     }
 
     /** Starts Cooper using the default task data file. */
