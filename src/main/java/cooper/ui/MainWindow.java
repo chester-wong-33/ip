@@ -39,15 +39,23 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
+     * Adds any number of dialogs to the conversation.
+     * @param dialogs dialogs to display in order
+     */
+    private void addDialogs(DialogBox... dialogs) {
+        dialogContainer.getChildren().addAll(dialogs);
+    }
+
+    /**
      * Injects Cooper and displays the startup message after FXML fields have been initialized.
      *
      * @param cooper Cooper instance used to process commands.
      */
     public void setCooper(Cooper cooper) {
         this.cooper = cooper;
-        dialogContainer.getChildren().add(
-                DialogBox.getCooperDialog(cooper.getStartupMessage(), cooperImage)
-        );
+        addDialogs(DialogBox.getCooperDialog(
+                cooper.getStartupMessage(), cooperImage
+        ));
     }
 
     /**
@@ -61,7 +69,7 @@ public class MainWindow extends AnchorPane {
             return;
         }
         CommandResult response = cooper.getResponse(input);
-        dialogContainer.getChildren().addAll(
+        addDialogs(
                 DialogBox.getUserDialog(input, userImage),
                 DialogBox.getCooperDialog(response.message(), cooperImage)
         );

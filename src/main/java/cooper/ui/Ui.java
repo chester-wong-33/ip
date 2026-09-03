@@ -12,8 +12,7 @@ import cooper.task.Task;
  * Handles all text-based interaction with the user.
  */
 public class Ui {
-    private static final String DASHES = "\t_*_*_*______________________________________________________\n";
-    private static final String INTRO = "Hello! I'm Cooper.\n\tWhat can I do for you?";
+    private static final String INTRO = "Hello! I'm Cooper. What can I do for you?";
     private static final DateTimeFormatter DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM dd uuuu HH:mm", Locale.ENGLISH);
 
@@ -145,68 +144,6 @@ public class Ui {
         }
         return message.toString();
     }
-
-    //    /** Displays the added task and the updated number of tasks. */
-    //    public void showAddedTask(Task task, int taskCount) {
-    //        showMessage("Got it. I've added this task:\n\t  " + task + taskCountMessage(taskCount));
-    //    }
-    //
-    //    /** Displays the deleted task and the updated number of tasks. */
-    //    public void showDeletedTask(Task task, int taskCount) {
-    //        showMessage("Noted. I've removed this task:\n\t  " + task + taskCountMessage(taskCount));
-    //    }
-    //
-    //    /** Displays confirmation that a task was marked complete. */
-    //    public void showMarkedTask(Task task) {
-    //        showMessage("Nice! I've marked this task as done:\n\t  " + task
-    //                + "\n\tCooper would have loved that :)");
-    //    }
-    //
-    //    /** Displays confirmation that a task was marked incomplete. */
-    //    public void showUnmarkedTask(Task task) {
-    //        showMessage("OK, I've marked this task as not done yet:\n\t  " + task + "\n\tKeep going! :)");
-    //    }
-    //
-    //    /** Displays all tasks with one-based numbering, or an empty-list message if necessary. */
-    //    public void showTaskList(List<Task> tasks) {
-    //        if (tasks.isEmpty()) {
-    //            showMessage("No current tasks!");
-    //            return;
-    //        }
-    //
-    //        StringBuilder message = new StringBuilder("Here are the tasks in your list:\n\t");
-    //        for (int i = 0; i < tasks.size(); i++) {
-    //            if (i > 0) {
-    //                message.append('\t');
-    //            }
-    //            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
-    //            if (i < tasks.size() - 1) {
-    //                message.append('\n');
-    //            }
-    //        }
-    //        showMessage(message.toString());
-    //    }
-    //
-    //    /** Displays tasks matching a find command with one-based result numbering. */
-    //    public void showMatchingTasks(List<Task> tasks) {
-    //        if (tasks.isEmpty()) {
-    //            showMessage("No matching tasks found!");
-    //            return;
-    //        }
-    //
-    //        StringBuilder message = new StringBuilder("Here are the matching tasks in your list:\n\t");
-    //        for (int i = 0; i < tasks.size(); i++) {
-    //            if (i > 0) {
-    //                message.append('\t');
-    //            }
-    //            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
-    //            if (i < tasks.size() - 1) {
-    //                message.append('\n');
-    //            }
-    //        }
-    //        showMessage(message.toString());
-    //    }
-
     /**
      * Formats a date-time for display to the user.
      *
@@ -222,10 +159,4 @@ public class Ui {
         String noun = taskCount == 1 ? "task" : "tasks";
         return String.format("\n\tNow you have %d %s in the list.", taskCount, noun);
     }
-
-    //    /** Returns a message between Cooper's standard separators. */
-    //    private String showMessage(String message) {
-    //        //      System.out.println(DASHES + '\t' + message + '\n' + DASHES);
-    //        return DASHES + '\t' + message + '\n' + DASHES;
-    //    }
 }
