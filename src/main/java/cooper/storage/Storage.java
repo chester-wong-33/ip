@@ -69,38 +69,66 @@ public class Storage {
     }
 
     /**
+     * Creates parent directories and the data file if absent.
+     *
+     * @param path Location of the data file.
+     * @return Whether a new, empty file was created.
+     * @throws IOException If the directories or file cannot be created.
+     */
+    private boolean createDataFileIfMissing(Path path) throws IOException {
+        Path parentDirectory = path.getParent();
+
+        if (parentDirectory != null) {
+            Files.createDirectories(parentDirectory);
+        }
+
+        if (Files.notExists(path)) {
+            Files.createFile(path);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Reads and decodes task entries from an existing data file.
+     *
+     * @param path Location of the data file.
+     * @return Decoded tasks in their original order.
+     * @throws IOException If the file cannot be opened.
+     * @throws CooperException If a task entry is invalid.
+     */
+    private List<Task> readTasks(Path path) throws IOException {
+        List<Task> taskList = new ArrayList<>();
+
+        try (Scanner fileReader = new Scanner(path)) {
+            while (fileReader.hasNextLine()) {
+                String entry = fileReader.nextLine();
+                taskList.add(decodeTask(entry));
+            }
+        }
+
+        return taskList;
+    }
+
+    /**
      * Loads all tasks from the data file, creating the file and its parent directories if absent.
      *
      * @return Tasks decoded from the data file.
      * @throws CooperException If the file cannot be read or created.
      */
     public List<Task> loadTasks() {
-        List<Task> taskList = new ArrayList<>();
         Path path = Path.of(filePath);
 
         try {
-            Path parentDirectory = path.getParent();
-
-            if (parentDirectory != null) {
-                Files.createDirectories(parentDirectory);
+            if (createDataFileIfMissing(path)) {
+                return new ArrayList<>();
             }
 
-            if (Files.notExists(path)) {
-                Files.createFile(path);
-                return taskList;
-            }
-
-            try (Scanner fileReader = new Scanner(path)) {
-                while (fileReader.hasNextLine()) {
-                    String entry = fileReader.nextLine();
-                    taskList.add(decodeTask(entry));
-                }
-            }
+            return readTasks(path);
         } catch (IOException e) {
             throw new CooperException("Unable to load task data.");
         }
-
-        return taskList;
     }
 
     /**

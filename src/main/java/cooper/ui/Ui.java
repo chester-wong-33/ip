@@ -32,6 +32,20 @@ public class Ui {
         return scanner.nextLine();
     }
 
+    /** Returns a StringBuilder in the numbered formatting. */
+    private String getNumFormattedString(List<Task> tasks) {
+        StringBuilder message = new StringBuilder();
+
+        for (int i = 0; i < tasks.size(); i++) {
+            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
+            if (i < tasks.size() - 1) {
+                message.append('\n');
+            }
+        }
+
+        return message.toString();
+    }
+
     /**
      * Returns Cooper's welcome message string
      * */
@@ -115,12 +129,9 @@ public class Ui {
         }
 
         StringBuilder message = new StringBuilder("Here are the tasks in your list:\n");
-        for (int i = 0; i < tasks.size(); i++) {
-            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
-            if (i < tasks.size() - 1) {
-                message.append('\n');
-            }
-        }
+        String messageBody = getNumFormattedString(tasks);
+        message.append(messageBody);
+
         return message.toString();
     }
 
@@ -136,12 +147,9 @@ public class Ui {
         }
 
         StringBuilder message = new StringBuilder("Here are the matching tasks in your list:\n");
-        for (int i = 0; i < tasks.size(); i++) {
-            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
-            if (i < tasks.size() - 1) {
-                message.append('\n');
-            }
-        }
+        String messageBody = getNumFormattedString(tasks);
+        message.append(messageBody);
+
         return message.toString();
     }
     /**
