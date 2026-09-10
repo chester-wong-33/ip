@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import cooper.task.Task;
 
@@ -30,6 +32,13 @@ public class Ui {
      */
     public String readCommand() {
         return scanner.nextLine();
+    }
+
+    /** Returns tasks numbered from one, separated by newlines. */
+    private String getNumFormattedString(List<Task> tasks) {
+        return IntStream.range(0, tasks.size())
+                .mapToObj(i -> String.format("%d.%s", i + 1, tasks.get(i)))
+                .collect(Collectors.joining("\n"));
     }
 
     /**
