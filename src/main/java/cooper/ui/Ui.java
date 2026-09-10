@@ -8,6 +8,9 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import cooper.note.Note;
+import cooper.note.NoteList;
+import cooper.parser.NoteCommand.Operation;
 import cooper.task.Task;
 
 /**
@@ -19,6 +22,44 @@ public class Ui {
             DateTimeFormatter.ofPattern("MMM dd uuuu HH:mm", Locale.ENGLISH);
 
     private final Scanner scanner = new Scanner(System.in);
+
+    /** Formats all notes or matching notes with their original collection numbers. */
+    public String getNotesMessage(NoteList notes, boolean searching, String keyword) {
+        List<Integer> numbers = searching ? notes.find(keyword)
+                : IntStream.rangeClosed(1, notes.size()).boxed().toList();
+        if (numbers.isEmpty()) {
+            return searching ? "No matching notes found!" : "No notes yet!";
+        }
+        String heading = searching ? "Here are the matching notes:" : "Here are your notes:";
+        return heading + "\n" + numbers.stream()
+                .map(number -> formatNote(number, notes.get(number)))
+                .collect(Collectors.joining("\n"));
+    }
+
+    /** Returns the exact acknowledgement after a note mutation has been saved. */
+    public String getNoteChangedMessage(Operation operation, int number, Note note, int count) {
+        String heading = switch (operation) {
+            case ADD -> "Got it. I've added this note:";
+            case EDIT -> "Got it. I've updated this note:";
+            case DELETE -> "Noted. I've removed this note:";
+            default -> throw new AssertionError("Expected a note mutation");
+        };
+        String message = heading + "\n" + formatNote(number, note);
+        if (operation != Operation.EDIT) {
+            message += "\nNow you have " + count + (count == 1 ? " note" : " notes") + " in the list.";
+        }
+        return message;
+    }
+
+    private String formatNote(int number, Note note) {
+        return number + ".[N] " + note.text();
+    }
+
+    /** Explains that task commands remain usable after a notes loading failure. */
+    public String getNotesLoadingErrorMessage() {
+        return "Cooper couldn't load your notes. Notes are unavailable until you fix the notes file "
+                + "and restart Cooper. Your tasks are still available.";
+    }
 
     /**
      * Returns whether another command is available from standard input.
