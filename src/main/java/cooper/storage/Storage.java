@@ -29,6 +29,8 @@ public class Storage {
     /** Decodes the fields of a todo storage entry. */
     private ToDo parseTodo(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only todo entries to this private decoder.
+        assert params[0].trim().equals("T") : "Todo decoder requires a T entry";
 
         if (params.length != 3) {
             throw new CooperException("Improper ToDo format!");
@@ -42,6 +44,8 @@ public class Storage {
     /** Decodes the fields of a deadline storage entry. */
     private Deadline parseDeadline(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only deadline entries to this private decoder.
+        assert params[0].trim().equals("D") : "Deadline decoder requires a D entry";
 
         if (params.length != 4) {
             throw new CooperException("Improper Deadline format!");
@@ -56,6 +60,8 @@ public class Storage {
     /** Decodes the fields of an event storage entry. */
     private Event parseEvent(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only event entries to this private decoder.
+        assert params[0].trim().equals("E") : "Event decoder requires an E entry";
 
         if (params.length != 5) {
             throw new CooperException("Improper Event format!");

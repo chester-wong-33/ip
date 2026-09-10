@@ -8,6 +8,9 @@
 /build/
 src/main/resources/docs/
 
+# Local data file
+data/cooper.txt
+
 # MacOS custom attributes files created by Finder
 .DS_Store
 *.iml
