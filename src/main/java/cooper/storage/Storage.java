@@ -29,6 +29,8 @@ public class Storage {
     /** Decodes the fields of a todo storage entry. */
     private ToDo parseTodo(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only todo entries to this private decoder.
+        assert params[0].trim().equals("T") : "Todo decoder requires a T entry";
 
         if (params.length != 3) {
             throw new CooperException("Improper ToDo format!");
@@ -42,6 +44,8 @@ public class Storage {
     /** Decodes the fields of a deadline storage entry. */
     private Deadline parseDeadline(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only deadline entries to this private decoder.
+        assert params[0].trim().equals("D") : "Deadline decoder requires a D entry";
 
         if (params.length != 4) {
             throw new CooperException("Improper Deadline format!");
@@ -56,6 +60,8 @@ public class Storage {
     /** Decodes the fields of an event storage entry. */
     private Event parseEvent(String line) {
         String[] params = line.split("\\|", -1);
+        // decodeTask must route only event entries to this private decoder.
+        assert params[0].trim().equals("E") : "Event decoder requires an E entry";
 
         if (params.length != 5) {
             throw new CooperException("Improper Event format!");
@@ -69,38 +75,66 @@ public class Storage {
     }
 
     /**
+     * Creates parent directories and the data file if absent.
+     *
+     * @param path Location of the data file.
+     * @return Whether a new, empty file was created.
+     * @throws IOException If the directories or file cannot be created.
+     */
+    private boolean createDataFileIfMissing(Path path) throws IOException {
+        Path parentDirectory = path.getParent();
+
+        if (parentDirectory != null) {
+            Files.createDirectories(parentDirectory);
+        }
+
+        if (Files.notExists(path)) {
+            Files.createFile(path);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Reads and decodes task entries from an existing data file.
+     *
+     * @param path Location of the data file.
+     * @return Decoded tasks in their original order.
+     * @throws IOException If the file cannot be opened.
+     * @throws CooperException If a task entry is invalid.
+     */
+    private List<Task> readTasks(Path path) throws IOException {
+        List<Task> taskList = new ArrayList<>();
+
+        try (Scanner fileReader = new Scanner(path)) {
+            while (fileReader.hasNextLine()) {
+                String entry = fileReader.nextLine();
+                taskList.add(decodeTask(entry));
+            }
+        }
+
+        return taskList;
+    }
+
+    /**
      * Loads all tasks from the data file, creating the file and its parent directories if absent.
      *
      * @return Tasks decoded from the data file.
      * @throws CooperException If the file cannot be read or created.
      */
     public List<Task> loadTasks() {
-        List<Task> taskList = new ArrayList<>();
         Path path = Path.of(filePath);
 
         try {
-            Path parentDirectory = path.getParent();
-
-            if (parentDirectory != null) {
-                Files.createDirectories(parentDirectory);
+            if (createDataFileIfMissing(path)) {
+                return new ArrayList<>();
             }
 
-            if (Files.notExists(path)) {
-                Files.createFile(path);
-                return taskList;
-            }
-
-            try (Scanner fileReader = new Scanner(path)) {
-                while (fileReader.hasNextLine()) {
-                    String entry = fileReader.nextLine();
-                    taskList.add(decodeTask(entry));
-                }
-            }
+            return readTasks(path);
         } catch (IOException e) {
             throw new CooperException("Unable to load task data.");
         }
-
-        return taskList;
     }
 
     /**
