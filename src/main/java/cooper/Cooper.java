@@ -3,8 +3,13 @@ package cooper;
 import java.util.List;
 
 import cooper.exception.CooperException;
+import cooper.note.Note;
+import cooper.note.NoteList;
 import cooper.parser.Action;
+import cooper.parser.NoteCommand;
+import cooper.parser.NoteParser;
 import cooper.parser.Parser;
+import cooper.storage.NoteStorage;
 import cooper.storage.Storage;
 import cooper.task.Task;
 import cooper.task.TaskList;
@@ -21,6 +26,9 @@ public class Cooper {
     private final TaskList tasks;
     private final Storage storage;
     private final Ui ui;
+    private final NoteStorage noteStorage;
+    private NoteList notes;
+    private boolean notesLoadingFailed;
 
     /** Creates Cooper using the default task data file. */
     public Cooper() {
@@ -34,8 +42,14 @@ public class Cooper {
      * @param filePath Path of the task data file.
      */
     public Cooper(String filePath) {
+        this(filePath, new NoteStorage(filePath));
+    }
+
+    /** Allows storage failure tests to supply a note storage implementation. */
+    Cooper(String filePath, NoteStorage noteStorage) {
         ui = new Ui();
         storage = new Storage(filePath);
+        this.noteStorage = noteStorage;
 
         TaskList loadedTasks;
         try {
@@ -45,6 +59,52 @@ public class Cooper {
             loadedTasks = new TaskList();
         }
         tasks = loadedTasks;
+        try {
+            notes = new NoteList(noteStorage.load());
+        } catch (CooperException e) {
+            notesLoadingFailed = true;
+            notes = new NoteList(List.of());
+        }
+    }
+
+    /** Validates note syntax before checking availability and dispatching the operation. */
+    private String handleNote(String input) {
+        NoteCommand command = NoteParser.parse(input);
+        if (notesLoadingFailed) {
+            throw new CooperException(NoteStorage.UNAVAILABLE);
+        }
+        return switch (command.operation()) {
+            case LIST -> ui.getNotesMessage(notes, false, "");
+            case FIND -> ui.getNotesMessage(notes, true, command.text());
+            case ADD, EDIT, DELETE -> changeNotes(command);
+        };
+    }
+
+    /** Persists a candidate before publishing it or reporting success. */
+    private String changeNotes(NoteCommand command) {
+        NoteList candidate;
+        Note affected;
+        int number = command.number();
+        switch (command.operation()) {
+            case ADD:
+                affected = new Note(command.text());
+                candidate = notes.add(affected);
+                number = candidate.size();
+                break;
+            case EDIT:
+                affected = new Note(command.text());
+                candidate = notes.edit(number, affected);
+                break;
+            case DELETE:
+                affected = notes.get(number);
+                candidate = notes.delete(number);
+                break;
+            default:
+                throw new AssertionError("Expected a note mutation");
+        }
+        noteStorage.save(candidate.asList());
+        notes = candidate;
+        return ui.getNoteChangedMessage(command.operation(), number, affected, notes.size());
     }
 
     /** Returns a message listing the current tasks. */
@@ -134,6 +194,8 @@ public class Cooper {
                 return handleFind(input);
             case Action.BYE:
                 return handleBye();
+            case Action.NOTE:
+                return handleNote(input);
             default:
                 // Unknown commands are rejected by the parser, so every Action must be handled above.
                 assert false : "Missing command handler for action: " + action;
@@ -163,10 +225,14 @@ public class Cooper {
      * @return Welcome text, including a loading warning when loading failed.
      */
     public String getStartupMessage() {
+        String message = ui.getWelcomeMessage();
         if (loadingFailed) {
-            return ui.getLoadingErrorMessage() + "\n\n" + ui.getWelcomeMessage();
+            message = ui.getLoadingErrorMessage() + "\n\n" + message;
         }
-        return ui.getWelcomeMessage();
+        if (notesLoadingFailed) {
+            message += "\n\n" + ui.getNotesLoadingErrorMessage();
+        }
+        return message;
     }
 
     /** Runs the command-reading loop until the user exits or input ends. */

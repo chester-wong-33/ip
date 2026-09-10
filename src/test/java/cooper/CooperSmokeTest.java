@@ -57,4 +57,15 @@ public class CooperSmokeTest {
         new Cooper(dataFile.toString()).run();
         return output.toString(StandardCharsets.UTF_8);
     }
+
+    @Test
+    public void run_notesLifecycleAndRestart_displaysPersistedNotes() {
+        String output = runCooper("note add first\nnote add second\nnote list\nnote find SECOND\n"
+                + "note edit 2 replacement\nnote delete 1\nbye\n");
+        assertTrue(output.contains("Here are your notes:\n1.[N] first\n2.[N] second"));
+        assertTrue(output.contains("Here are the matching notes:\n2.[N] second"));
+        assertTrue(output.contains("Got it. I've updated this note:\n2.[N] replacement"));
+        assertTrue(output.contains("Noted. I've removed this note:\n1.[N] first"));
+        assertTrue(runCooper("note list\nbye\n").contains("Here are your notes:\n1.[N] replacement"));
+    }
 }
