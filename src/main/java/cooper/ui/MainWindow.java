@@ -47,6 +47,19 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
+     * Displays the user's command followed by Cooper's reply.
+     *
+     * @param input Command entered by the user.
+     * @param reply Cooper's response text.
+     */
+    private void displayExchange(String input, String reply) {
+        addDialogs(
+                DialogBox.getUserDialog(input, userImage),
+                DialogBox.getCooperDialog(reply, cooperImage)
+        );
+    }
+
+    /**
      * Injects Cooper and displays the startup message after FXML fields have been initialized.
      *
      * @param cooper Cooper instance used to process commands.
@@ -56,6 +69,16 @@ public class MainWindow extends AnchorPane {
         addDialogs(DialogBox.getCooperDialog(
                 cooper.getStartupMessage(), cooperImage
         ));
+    }
+
+    /** Disables further input and closes the application after goodbye message is shown briefly. */
+    private void scheduleExit() {
+        userInput.setDisable(true);
+        sendButton.setDisable(true);
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(1));
+        delay.setOnFinished((event) -> Platform.exit());
+        delay.play();
     }
 
     /**
@@ -68,21 +91,13 @@ public class MainWindow extends AnchorPane {
         if (input.isEmpty()) {
             return;
         }
+
         CommandResult response = cooper.getResponse(input);
-        addDialogs(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getCooperDialog(response.message(), cooperImage)
-        );
+        displayExchange(input, response.message());
         userInput.clear();
 
         if (response.shouldExit()) {
-            // Prevent extra commands while leaving the goodbye message visible briefly before closing.
-            userInput.setDisable(true);
-            sendButton.setDisable(true);
-
-            PauseTransition delay = new PauseTransition(Duration.seconds(1));
-            delay.setOnFinished((event) -> Platform.exit());
-            delay.play();
+            scheduleExit();
         }
     }
 }
