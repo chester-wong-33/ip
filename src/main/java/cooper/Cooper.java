@@ -1,5 +1,7 @@
 package cooper;
 
+import java.util.List;
+
 import cooper.exception.CooperException;
 import cooper.parser.Action;
 import cooper.parser.Parser;
@@ -45,6 +47,11 @@ public class Cooper {
         tasks = loadedTasks;
     }
 
+    /** Returns a message listing the current tasks. */
+    private String handleList() {
+        return ui.getTaskListMessage(tasks.asList());
+    }
+
     /** Persists a snapshot of the current task list. */
     private void saveTasks() {
         storage.saveTasks(tasks.asList());
@@ -86,6 +93,18 @@ public class Cooper {
         return ui.getUnmarkedTaskMessage(task);
     }
 
+    /** Parses a find command and returns a message containing matching tasks */
+    private String handleFind(String input) {
+        String keyword = Parser.parseFindKeyword(input);
+        List<Task> matchingTasks = tasks.find(keyword);
+        return ui.getMatchingTasksMessage(matchingTasks);
+    }
+
+    /** Returns the farewell message. */
+    private String handleBye() {
+        return ui.getByeMessage();
+    }
+
     /**
      * Executes one user command and returns its response.
      *
@@ -96,7 +115,7 @@ public class Cooper {
     private String executeCommand(Action action, String input) {
         switch (action) {
             case Action.LIST:
-                return ui.getTaskListMessage(tasks.asList());
+                return handleList();
             case Action.DELETE:
                 return handleDelete(input);
             case Action.MARK:
@@ -110,9 +129,9 @@ public class Cooper {
             case Action.EVENT:
                 return addTask(Parser.parseEvent(input));
             case Action.FIND:
-                return ui.getMatchingTasksMessage(tasks.find(Parser.parseFindKeyword(input)));
+                return handleFind(input);
             case Action.BYE:
-                return ui.getByeMessage();
+                return handleBye();
             default:
                 throw new CooperException("Cooper doesn't understand this command :(");
         }
@@ -120,8 +139,6 @@ public class Cooper {
 
     /**
      * Executes one command and returns Cooper's response and exit status.
-     * The action is intentionally parsed here to determine the exit status and
-     * parsed again by {@link #executeCommand(Action, String)} when the command is run.
      *
      * @param input User command to process.
      * @return Cooper's response to the command and whether Cooper should exit.
