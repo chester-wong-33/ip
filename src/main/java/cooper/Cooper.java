@@ -89,12 +89,11 @@ public class Cooper {
     /**
      * Executes one user command and returns its response.
      *
+     * @param action Parsed action to execute.
      * @param input User command to execute.
      * @return Response produced by the command.
      */
-    private String executeCommand(String input) {
-        Action action = Parser.parseAction(input);
-
+    private String executeCommand(Action action, String input) {
         switch (action) {
             case Action.LIST:
                 return ui.getTaskListMessage(tasks.asList());
@@ -122,7 +121,7 @@ public class Cooper {
     /**
      * Executes one command and returns Cooper's response and exit status.
      * The action is intentionally parsed here to determine the exit status and
-     * parsed again by {@link #executeCommand(String)} when the command is run.
+     * parsed again by {@link #executeCommand(Action, String)} when the command is run.
      *
      * @param input User command to process.
      * @return Cooper's response to the command and whether Cooper should exit.
@@ -130,7 +129,7 @@ public class Cooper {
     public CommandResult getResponse(String input) {
         try {
             Action action = Parser.parseAction(input);
-            String response = executeCommand(input);
+            String response = executeCommand(action, input);
             return new CommandResult(response, action == Action.BYE);
         } catch (CooperException e) {
             return new CommandResult(e.getMessage(), false);
