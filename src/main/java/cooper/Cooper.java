@@ -52,6 +52,8 @@ public class Cooper {
 
     /** Adds, saves, and displays a newly parsed task. */
     private String addTask(Task task) {
+        // Successful task parsers must produce a task before it is stored or displayed.
+        assert task != null : "A successful task parser must return a task";
         tasks.add(task);
         saveTasks();
         return ui.getAddedTaskMessage(task, tasks.size());
@@ -115,6 +117,8 @@ public class Cooper {
             case Action.BYE:
                 return ui.getByeMessage();
             default:
+                // Unknown commands are rejected by the parser, so every Action must be handled above.
+                assert false : "Missing command handler for action: " + action;
                 throw new CooperException("Cooper doesn't understand this command :(");
         }
     }
