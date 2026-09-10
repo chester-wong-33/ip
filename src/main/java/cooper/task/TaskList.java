@@ -63,13 +63,9 @@ public class TaskList {
      * @return Matching tasks in their original list order.
      */
     public List<Task> find(String keyword) {
-        List<Task> matchingTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.containsKeyword(keyword)) {
-                matchingTasks.add(task);
-            }
-        }
-        return List.copyOf(matchingTasks);
+        return tasks.stream()
+                .filter(task -> task.containsKeyword(keyword))
+                .toList();
     }
 
     /** Ensures a one-based task number refers to a task currently in the list. */

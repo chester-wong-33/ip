@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import cooper.task.Task;
 
@@ -32,18 +34,11 @@ public class Ui {
         return scanner.nextLine();
     }
 
-    /** Returns a StringBuilder in the numbered formatting. */
+    /** Returns tasks numbered from one, separated by newlines. */
     private String getNumFormattedString(List<Task> tasks) {
-        StringBuilder message = new StringBuilder();
-
-        for (int i = 0; i < tasks.size(); i++) {
-            message.append(String.format("%d.%s", i + 1, tasks.get(i)));
-            if (i < tasks.size() - 1) {
-                message.append('\n');
-            }
-        }
-
-        return message.toString();
+        return IntStream.range(0, tasks.size())
+                .mapToObj(i -> String.format("%d.%s", i + 1, tasks.get(i)))
+                .collect(Collectors.joining("\n"));
     }
 
     /**
