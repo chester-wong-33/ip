@@ -27,10 +27,12 @@ public class Ui {
     public String getNotesMessage(NoteList notes, boolean searching, String keyword) {
         List<Integer> numbers = searching ? notes.find(keyword)
                 : IntStream.rangeClosed(1, notes.size()).boxed().toList();
+
         if (numbers.isEmpty()) {
             return searching ? "No matching notes found!"
                     : "Your mission notebook is empty. Start with: note add <text>";
         }
+
         String heading = searching ? "Here are the matching notes:" : "Here are your notes:";
         return heading + "\n" + numbers.stream()
                 .map(number -> formatNote(number, notes.get(number)))
@@ -45,7 +47,9 @@ public class Ui {
             case DELETE -> "Noted. I've removed this note:";
             default -> throw new AssertionError("Expected a note mutation");
         };
+
         String message = heading + "\n" + formatNote(number, note);
+
         if (operation != Operation.EDIT) {
             message += "\nNow you have " + count + (count == 1 ? " note" : " notes") + " in the list.";
         }
@@ -108,7 +112,7 @@ public class Ui {
      * Displays a warning that saved tasks could not be loaded.
      */
     public String getLoadingErrorMessage() {
-        return "I couldn't load the saved tasks. Starting with an empty task list.";
+        return "I couldn't load your tasks. Fix the task file and restart me. Your notes are still available.";
     }
 
     /**

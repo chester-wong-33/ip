@@ -143,7 +143,7 @@ Notes are automatically saved after every successful add, edit, or delete. They 
 The file is `data/notes.txt` by default, or `notes.txt` beside a custom task file.
 A missing file means an empty collection; it is created on the first successful mutation.
 
-Task data stays in its original format and location. Existing task files need no migration, and older Cooper versions
+Task data stays in its original location. Existing task files need no migration, and older Cooper versions
 ignore the separate notes file. Importing other note formats and automatic migrations are not supported.
 Do not run multiple Cooper instances against the same notes file or edit it externally while Cooper is running.
 
@@ -197,3 +197,25 @@ Task commands remain available. Cooper does not partially load or overwrite the 
 Exit Cooper, keep a backup of the damaged file, correct its format or restore a known-good copy, then restart.
 If you intentionally want to start over, move the damaged file elsewhere before restarting.
 Repairing the file while Cooper is running does not re-enable Notes until restart.
+
+
+## Error handling
+
+Command words are case-insensitive. Leading/trailing spaces and repeated spaces or tabs between command components
+are accepted; internal spacing in descriptions is preserved. Commands occupy one line. `list` and `bye` take no
+arguments. Task numbers must be positive ASCII integers within the current list; signs, decimals, and overflow are
+rejected. Use `list` to see valid numbers.
+
+Deadlines require exactly one lowercase `/by`. Events require exactly one lowercase `/from` followed by one `/to`.
+Each date field must be present. Delimiters must be separate tokens; these tokens are reserved in dated commands.
+Dates accept `yyyy-MM-dd` or `dd-MM-yyyy`, with slash separators also supported and optional `HH:mm`.
+Dates without times mean midnight. An event must end strictly after it starts. Past dates and duplicate tasks are allowed.
+
+Invalid input reports an error without changing data or exiting. A failed save leaves the previous collection in memory
+and on disk. Task and note saves use atomic file replacement; unsupported atomic replacement is reported as a save error.
+If task loading fails, task commands are disabled until the task file is repaired and Cooper restarted. Notes and `bye`
+remain usable, provided note storage is available. Keep a backup before repairing a malformed file.
+
+Task records retain their legacy pipe-delimited form unless the description contains a literal pipe (`|`). Those records
+have a `V2 | ` prefix and a Base64-encoded UTF-8 description; status and date fields keep their original representation.
+Both record forms can coexist in the same file. Earlier Cooper versions cannot read V2 records. Note storage is unchanged.

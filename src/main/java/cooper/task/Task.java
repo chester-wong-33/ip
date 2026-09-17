@@ -28,6 +28,21 @@ public class Task {
         this.isDone = isDone;
     }
 
+    /** Returns the description without display decorations. */
+    public String getDescription() {
+        return description;
+    }
+
+    /** Returns the completion state for persistence rollback. */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /** Sets completion state, including when restoring a failed save. */
+    public void setDone(boolean done) {
+        isDone = done;
+    }
+
     /** Marks this task as complete. */
     public void markAsDone() {
         isDone = true;
