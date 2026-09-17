@@ -11,7 +11,8 @@ in a chat window or terminal. Changes are saved automatically.
 
 ## Quick start
 
-1. Install **Java 25** and place `cooper.jar` in a folder where you can save files.
+1. Install **Java 25** and place `cooper.jar` in a folder where you can save files
+   (Mac users should use the specific Azul JDK 25 distribution recommended).
 2. Open a terminal in that folder and run:
 
    ```shell
