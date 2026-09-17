@@ -1,5 +1,7 @@
 package cooper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -25,6 +27,29 @@ public class CooperSmokeTest {
     public void restoreSystemStreams() {
         System.setIn(originalInput);
         System.setOut(originalOutput);
+    }
+
+    @Test
+    public void getResponse_errorStatus_doesNotAffectMessagesOrExit() {
+        Cooper cooper = new Cooper(temporaryDirectory.resolve("cooper.txt").toString());
+        CommandResult error = cooper.getResponse("mark");
+        assertTrue(error.isError());
+        assertFalse(error.shouldExit());
+        assertEquals("Invalid syntax :( Cooper would like you to follow the format: mark <task-number>",
+                error.message());
+        assertFalse(cooper.getResponse("list").isError());
+        CommandResult goodbye = cooper.getResponse("bye");
+        assertTrue(goodbye.shouldExit());
+        assertFalse(goodbye.isError());
+    }
+
+    @Test
+    public void run_invalidCommand_continuesAndPrintsPlainText() {
+        String output = runCooper("mark\ntodo read book\nlist\nbye\ntodo should not run\n");
+        assertTrue(output.contains("Invalid syntax :( Cooper would like you to follow the format: mark <task-number>"));
+        assertTrue(output.contains("1.[T][ ] read book"));
+        assertFalse(output.contains("Error\n"));
+        assertFalse(output.contains("should not run"));
     }
 
     @Test

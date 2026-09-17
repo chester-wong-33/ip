@@ -20,6 +20,13 @@
     -fx-text-fill: #3e2759;
 }
 
+/* Pair the color with an explicit Error heading so color is not the only cue. */
+.error-label {
+    -fx-background-color: #fff1f2;
+    -fx-border-color: #be4351;
+    -fx-text-fill: #842029;
+}
+
 /* A restrained shadow separates each avatar without distracting from its message. */
 #displayPicture {
     -fx-effect: dropshadow(gaussian, rgba(20, 30, 25, 0.22), 6, 0.15, 0, 2);

@@ -29,8 +29,9 @@ public class Main extends Application {
             Scene scene = new Scene(ap);
             stage.setTitle("Cooper");
             stage.setScene(scene);
-            stage.setMinHeight(220);
-            stage.setMinWidth(417);
+            stage.setMinHeight(300);
+            stage.setMinWidth(320);
+            stage.setResizable(true);
             // Injection keeps command logic in Cooper while the controller handles only GUI events.
             fxmlLoader.<MainWindow>getController().setCooper(cooper);
             stage.show();
