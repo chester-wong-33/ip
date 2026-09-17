@@ -1,221 +1,173 @@
 # Cooper User Guide
 
-Cooper manages tasks and standalone notes through commands in its chat window or command-line interface.
+Cooper is your task co-pilot: keep track of todos, deadlines, events, and short notes by typing commands
+in a chat window or terminal. Changes are saved automatically.
+
+- [Quick start](#quick-start)
+- [Features](#features)
+- [Notes](#notes)
+- [Saving and recovery](#saving-and-recovery)
+- [Command summary](#command-summary)
+
+## Quick start
+
+1. Install **Java 25** and place `cooper.jar` in a folder where you can save files.
+2. Open a terminal in that folder and run:
+
+   ```shell
+   java -jar cooper.jar
+   ```
+
+3. Type `todo read book` in the input box and press **Enter** or click **Send**.
+4. Enter `list`, then `mark 1` to complete your first task. Enter `bye` to exit.
+
+**Building from source:** in the project folder, run `./gradlew shadowJar`
+(Windows: `.\gradlew.bat shadowJar`). The JAR is created at `build/libs/cooper.jar`.
+
+**Terminal interface:** run `java -cp cooper.jar cooper.Cooper` from the folder containing the JAR.
+The same commands work; end-of-input also exits cleanly.
+
+## Features
+
+### Command format
+
+- Replace uppercase placeholders such as `DESCRIPTION` and `NUMBER` with your own values.
+- Enter one command per line. Command words ignore case; extra spaces or tabs between components are accepted.
+- Descriptions and note text must not be blank. Internal spacing is preserved; quotes are literal characters.
+- Numbers start at **1** and must refer to an existing item. Deleting an item renumbers those after it.
+- `list`, `note list`, and `bye` take no extra arguments. Duplicate tasks and notes are allowed.
+
+### Adding a todo: `todo`
+
+Adds a task without a date.
+
+**Format:** `todo DESCRIPTION`
+
+**Example:** `todo read book`
+
+### Adding a deadline: `deadline`
+
+Adds a task with a due date.
+
+**Format:** `deadline DESCRIPTION /by DATE [TIME]`
+
+**Example:** `deadline submit report /by 2026-10-01 23:59`
+
+### Adding an event: `event`
+
+Adds a task with a start and end time.
+
+**Format:** `event DESCRIPTION /from DATE [TIME] /to DATE [TIME]`
+
+**Example:** `event team meeting /from 2026-10-02 14:00 /to 2026-10-02 16:00`
+
+**Date rules:** use `yyyy-MM-dd` or `dd-MM-yyyy`; slash separators also work, such as `01/10/2026`.
+`[TIME]` means an optional 24-hour `HH:mm` value; do not type the brackets. Without a time, midnight is used.
+An event must end strictly after it starts. Past dates are allowed; impossible dates such as February 30 are rejected.
+Use lowercase `/by`, `/from`, and `/to` exactly once in the order shown, separated from values by spaces.
+These delimiter tokens are reserved in dated commands.
+
+### Viewing tasks: `list`
+
+**Format:** `list`
+
+Shows all tasks in their current order. For example:
+
+```text
+Here's your flight plan:
+1.[T][ ] read book
+2.[D][X] submit report (by: Oct 01 2026 23:59)
+```
+
+`[T]` means todo, `[D]` deadline, and `[E]` event. `[ ]` means unfinished; `[X]` means done.
+
+### Updating completion: `mark` and `unmark`
+
+**Formats:** `mark NUMBER` and `unmark NUMBER`
+
+**Examples:** `mark 1` completes task 1; `unmark 1` makes it unfinished again.
+
+Use the number from the latest full `list`.
+
+### Finding tasks: `find`
+
+**Format:** `find KEYWORD`
+
+**Example:** `find book` finds descriptions containing `book`, including `books`.
+
+Task search is **case-sensitive**. Multiple words form one literal phrase; there are no wildcards.
+No matches produces `No matching tasks found!`.
+
+> **Important:** Task search results are renumbered from 1. Run `list` again before using `mark`, `unmark`,
+> or `delete`: those commands always use the full task list's numbers, not search-result positions.
+
+### Deleting a task: `delete`
+
+**Format:** `delete NUMBER`
+
+**Example:** `delete 2` removes task 2 from the full list.
+
+Deletion is immediate, with no confirmation or undo. Task descriptions and dates cannot be edited directly;
+add a replacement task and delete the old one.
 
 ## Notes
 
-Use notes for short snippets such as a waist size or a movie to remember. Notes are separate from tasks:
-they have no completion checkbox, dates, title field, tags, attachments, pinning, or archive state.
-Existing `list`, `find`, `delete`, `mark`, and `unmark` commands still affect only tasks.
+Notes store single-line snippets, such as a size or a movie to remember. They are separate from tasks and have
+no completion status or dates. Task commands never modify notes.
 
-### Commands
+| Action | Format | Example |
+| --- | --- | --- |
+| Add | `note add TEXT` | `note add Watch Arrival` |
+| List | `note list` | `note list` |
+| Find | `note find KEYWORD` | `note find ARRIVAL` |
+| Replace text | `note edit NUMBER TEXT` | `note edit 1 Watch Dune` |
+| Delete | `note delete NUMBER` | `note delete 1` |
 
-| Command | Result |
-| --- | --- |
-| `note add <text>` | Append a note. |
-| `note list` | Show all notes. |
-| `note find <keyword>` | Search for a literal phrase, ignoring case. |
-| `note edit <number> <text>` | Replace the entire text, keeping its position. |
-| `note delete <number>` | Delete immediately, without confirmation or undo. |
+Note search is **case-insensitive** and matches a literal phrase anywhere in the text. Results retain the original
+note numbers, which you can use directly for editing or deletion. Editing replaces the whole text without moving
+the note. Deletion is immediate, has no undo, and renumbers later notes.
 
-Command words ignore case, and spaces or tabs may separate command components.
-Notes contain one line. Outer whitespace is removed; internal spacing and case are preserved.
-Unicode, emoji, pipes, quotes, backslashes, and command-like text are accepted literally.
-Quotes do not group arguments, and `\n` means a backslash followed by `n`, not a newline.
-Blank text and actual line breaks are rejected. Duplicates are allowed; there is no explicit length or count cap.
-The GUI displays full text with wrapping and no truncation.
-
-Notes are numbered from 1 in creation order. Deleting a note renumbers later notes.
-Editing does not change order. Search results show the original collection numbers, not result positions.
-Use the number shown to edit or delete a matching note. Numbers must contain only ASCII digits and fit a positive
-Java integer (at most 2147483647); leading zeros are accepted. The number must also exist in the current list.
-
-### Example session and exact responses
-
-Starting with no notes, `note list` returns:
-
-```text
-Your mission notebook is empty. Start with: note add <text>
-```
-
-Enter `note add Waist size: 32`:
-
-```text
-Logged in the mission notebook. I've added this note:
-1.[N] Waist size: 32
-Now you have 1 note in the list.
-```
-
-Enter `note add Watch Arrival`:
-
-```text
-Logged in the mission notebook. I've added this note:
-2.[N] Watch Arrival
-Now you have 2 notes in the list.
-```
-
-Enter `note list`:
-
-```text
-Here are your notes:
-1.[N] Waist size: 32
-2.[N] Watch Arrival
-```
-
-Enter `note find ARRIVAL`:
+For example, after `note add Watch Arrival`, `note find ARRIVAL` returns:
 
 ```text
 Here are the matching notes:
-2.[N] Watch Arrival
+1.[N] Watch Arrival
 ```
 
-Search matches a complete literal substring of the text, using locale-independent case conversion.
-For example, `note find waist size` matches the first note. Multiple words form one phrase;
-there are no wildcards or regular expressions. No matches returns:
+### Exiting: `bye`
 
-```text
-No matching notes found!
-```
+**Format:** `bye`
 
-Enter `note edit 2 Watch Spirited Away`:
+Cooper signs off and closes. In the GUI, the farewell appears briefly before the window closes.
 
-```text
-Got it. I've updated this note:
-2.[N] Watch Spirited Away
-```
+## Saving and recovery
 
-Editing to the same text is also successful. Enter `note delete 1`:
+Tasks and notes are saved after each successful change in `data/cooper.txt` and `data/notes.txt`, relative to the
+**folder you launched Cooper from**. Always launch from the same folder to use the same data. Missing files start
+empty. To back up or transfer your data, close Cooper and copy the entire `data` folder.
 
-```text
-Noted. I've removed this note:
-1.[N] Waist size: 32
-Now you have 1 note in the list.
-```
-
-The remaining note is now number 1. Deletion displays the removed note's former number.
-The count uses `note` only for 1, and `notes` for all other counts, including zero.
-Response text has no trailing newline; the CLI adds its usual output line terminator.
-The GUI also echoes your input in a separate bubble. Note commands never exit Cooper; use `bye` as usual.
-
-Other valid inputs:
-
-```text
-  NoTe   AdD   Watch Dune
-note add Size: 32 | colour: blue
-note add Remember "Arrival"
-note add Folder C:\films
-note add todo buy milk /by tomorrow
-note edit 01 Watch Dune
-```
-
-The text after `add` is stored literally, including quotes and task-like words.
-
-### Invalid inputs
-
-Bare `note`, unknown subcommands, and incorrect structure return:
-
-```text
-I need a valid note command:
-note add <text>
-note list
-note find <keyword>
-note edit <number> <text>
-note delete <number>
-```
-
-Examples: `note`, `note archive 1`, `note list extra`, `note delete`, `note delete 1 extra`, and `note edit`.
-
-| Input or condition | Exact response |
+| Problem | What to do |
 | --- | --- |
-| `note add`, `note edit 1`, or blank replacement text | `I need some text for your note!` |
-| `note find` or blank keyword | `I need a keyword to find matching notes!` |
-| Actual line break inside a note command | `I need each note command on a single line!` |
-| `note delete abc`, `note delete -1`, `note delete 0`, `note delete +1`, or integer overflow | `I need a valid positive note number!` |
-| Valid positive number outside the list | `I couldn't find a note with that number :(` |
+| Invalid command or number | Follow the suggested format; use `list` or `note list` to check numbers. Errors leave data unchanged. |
+| Cannot load tasks or notes | Close Cooper, back up the affected file, then restore a valid backup or correct the file and restart. The affected collection stays unavailable until restart; the other works if its file is valid. |
+| Cannot save | Check folder permissions and available disk space. Use a local writable folder if necessary. The failed change is not applied; retry after fixing the cause. |
+| Tasks appear missing | Check that you launched Cooper from the folder containing your usual `data` directory. |
 
-Validation checks line breaks, structure, required text/keyword and number syntax, Notes availability, then whether
-the number exists. Errors do not modify notes. In the CLI, pressing Enter submits a command; it cannot enter a
-multiline note. The GUI likewise uses a single-line input field.
+Prefer commands over manual file edits. Older saved events whose end precedes or equals their start must be corrected
+before loading. Avoid running multiple instances against the same files. Tasks containing a pipe character use a newer
+storage format that older Cooper versions cannot read.
 
-### Saving and compatibility
+## Command summary
 
-Notes are automatically saved after every successful add, edit, or delete. They survive restarts.
-The file is `data/notes.txt` by default, or `notes.txt` beside a custom task file.
-A missing file means an empty collection; it is created on the first successful mutation.
-
-Task data stays in its original location. Existing task files need no migration, and older Cooper versions
-ignore the separate notes file. Importing other note formats and automatic migrations are not supported.
-Do not run multiple Cooper instances against the same notes file or edit it externally while Cooper is running.
-
-The notes file is UTF-8 with this version header and one record per note:
-
-```text
-COOPER_NOTES_V1
-N | Waist size: 32
-N | Watch Arrival
-```
-
-Writes use LF line endings and a final LF; reads accept LF or CRLF. An empty collection contains only the header.
-Record order defines numbering. Each record starts with the exact prefix `N | `.
-In the file (not in commands), backslashes are encoded as `\\`, and pipes as `\|`:
-
-```text
-COOPER_NOTES_V1
-N | Folder C:\\films \| watch Arrival
-```
-
-Only those two escapes are valid. Empty records, unknown prefixes, blank text, outer whitespace, actual line breaks
-in a note, unknown/incomplete escapes, unescaped pipes, invalid UTF-8, and unsupported/missing headers are rejected.
-An existing zero-byte file is malformed, not an empty collection.
-
-### Storage errors and recovery
-
-If saving fails, Cooper returns:
-
-```text
-I couldn't save your notes. Your change has not been applied.
-```
-
-The prior collection remains active and the previous saved file is retained. Saving writes a sibling temporary file
-and atomically replaces the saved file before publishing the change in memory. A filesystem that cannot support
-atomic replacement causes a save error; Cooper does not fall back to a partial overwrite.
-Temporary files use `notes-*.tmp` names and are cleaned up when possible; they are never loaded as notes.
-
-If loading fails, the startup message includes this paragraph after a blank line:
-
-```text
-I couldn't load your notes. Notes are unavailable until you fix the notes file and restart me. Your tasks are still available.
-```
-
-Valid note commands then return:
-
-```text
-I couldn't load your notes. Fix the notes file and restart me. Your saved notes have not been changed.
-```
-
-Task commands remain available. Cooper does not partially load or overwrite the damaged file.
-Exit Cooper, keep a backup of the damaged file, correct its format or restore a known-good copy, then restart.
-If you intentionally want to start over, move the damaged file elsewhere before restarting.
-Repairing the file while Cooper is running does not re-enable Notes until restart.
-
-
-## Error handling
-
-Command words are case-insensitive. Leading/trailing spaces and repeated spaces or tabs between command components
-are accepted; internal spacing in descriptions is preserved. Commands occupy one line. `list` and `bye` take no
-arguments. Task numbers must be positive ASCII integers within the current list; signs, decimals, and overflow are
-rejected. Use `list` to see valid numbers.
-
-Deadlines require exactly one lowercase `/by`. Events require exactly one lowercase `/from` followed by one `/to`.
-Each date field must be present. Delimiters must be separate tokens; these tokens are reserved in dated commands.
-Dates accept `yyyy-MM-dd` or `dd-MM-yyyy`, with slash separators also supported and optional `HH:mm`.
-Dates without times mean midnight. An event must end strictly after it starts. Past dates and duplicate tasks are allowed.
-
-Invalid input reports an error without changing data or exiting. A failed save leaves the previous collection in memory
-and on disk. Task and note saves use atomic file replacement; unsupported atomic replacement is reported as a save error.
-If task loading fails, task commands are disabled until the task file is repaired and Cooper restarted. Notes and `bye`
-remain usable, provided note storage is available. Keep a backup before repairing a malformed file.
-
-Task records retain their legacy pipe-delimited form unless the description contains a literal pipe (`|`). Those records
-have a `V2 | ` prefix and a Base64-encoded UTF-8 description; status and date fields keep their original representation.
-Both record forms can coexist in the same file. Earlier Cooper versions cannot read V2 records. Note storage is unchanged.
+| Purpose | Command |
+| --- | --- |
+| Add todo | `todo DESCRIPTION` |
+| Add deadline | `deadline DESCRIPTION /by DATE [TIME]` |
+| Add event | `event DESCRIPTION /from DATE [TIME] /to DATE [TIME]` |
+| List / search tasks | `list` / `find KEYWORD` |
+| Complete / reopen task | `mark NUMBER` / `unmark NUMBER` |
+| Delete task | `delete NUMBER` |
+| Add / edit note | `note add TEXT` / `note edit NUMBER TEXT` |
+| List / search notes | `note list` / `note find KEYWORD` |
+| Delete note | `note delete NUMBER` |
+| Exit | `bye` |
