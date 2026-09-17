@@ -50,12 +50,12 @@ public class MainWindow extends AnchorPane {
      * Displays the user's command followed by Cooper's reply.
      *
      * @param input Command entered by the user.
-     * @param reply Cooper's response text.
+     * @param reply Cooper's response and command status.
      */
-    private void displayExchange(String input, String reply) {
+    private void displayExchange(String input, CommandResult reply) {
         addDialogs(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getCooperDialog(reply, cooperImage)
+                DialogBox.getCooperDialog(reply.message(), cooperImage, reply.isError())
         );
     }
 
@@ -93,7 +93,7 @@ public class MainWindow extends AnchorPane {
         }
 
         CommandResult response = cooper.getResponse(input);
-        displayExchange(input, response.message());
+        displayExchange(input, response);
         userInput.clear();
 
         if (response.shouldExit()) {

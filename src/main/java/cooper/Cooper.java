@@ -215,7 +215,7 @@ public class Cooper {
             String response = executeCommand(action, input);
             return new CommandResult(response, action == Action.BYE);
         } catch (CooperException e) {
-            return new CommandResult(e.getMessage(), false);
+            return new CommandResult(e.getMessage(), false, true);
         }
     }
 

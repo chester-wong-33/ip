@@ -35,6 +35,17 @@ Use the exact example responses in [the Notes guide](../docs/README.md#notes).
 8. Add, mark, find, unmark, and delete a task. Verify it never becomes a note or changes note data.
 9. Enter `bye`: verify the reply, disabled input, and delayed exit. Restart and verify all notes survived.
 
+## Better GUI acceptance
+
+1. Enter `mark` without a number. Expect a pale red reply with an `Error` heading and dark readable text.
+   Follow it with `list`; expect the normal purple reply, without an error heading.
+2. Add a long task or note and list it. Resize the window from its minimum size to a wide window and back.
+   Verify complete text wrapping, no overlapping messages, and no horizontal clipping.
+3. Check that the input and Send button remain visible at all supported sizes and that both Enter and Send work.
+4. Check consistent gaps between messages, padding inside bubbles, and compact avatars.
+5. Run `cooper.Cooper` as the CLI entry point. Try an invalid command, a valid command, and `bye`.
+   Expect plain text errors, continued command processing, and normal exit without JavaFX startup.
+
 ## Manual recovery checks
 
 Use only disposable data; exit Cooper before changing files.
