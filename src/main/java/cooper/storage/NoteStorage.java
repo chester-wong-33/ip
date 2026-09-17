@@ -13,9 +13,9 @@ import cooper.note.Note;
 
 /** Versioned UTF-8 note storage, isolated from task data and replaced atomically on save. */
 public class NoteStorage {
-    public static final String UNAVAILABLE = "Cooper couldn't load your notes. Fix the notes file and restart Cooper. "
+    public static final String UNAVAILABLE = "I couldn't load your notes. Fix the notes file and restart me. "
             + "Your saved notes have not been changed.";
-    public static final String SAVE_FAILED = "Cooper couldn't save your notes. Your change has not been applied.";
+    public static final String SAVE_FAILED = "I couldn't save your notes. Your change has not been applied.";
     private static final String HEADER = "COOPER_NOTES_V1";
     private final Path path;
 

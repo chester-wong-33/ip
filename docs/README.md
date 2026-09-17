@@ -35,13 +35,13 @@ Java integer (at most 2147483647); leading zeros are accepted. The number must a
 Starting with no notes, `note list` returns:
 
 ```text
-No notes yet!
+Your mission notebook is empty. Start with: note add <text>
 ```
 
 Enter `note add Waist size: 32`:
 
 ```text
-Got it. I've added this note:
+Logged in the mission notebook. I've added this note:
 1.[N] Waist size: 32
 Now you have 1 note in the list.
 ```
@@ -49,7 +49,7 @@ Now you have 1 note in the list.
 Enter `note add Watch Arrival`:
 
 ```text
-Got it. I've added this note:
+Logged in the mission notebook. I've added this note:
 2.[N] Watch Arrival
 Now you have 2 notes in the list.
 ```
@@ -115,7 +115,7 @@ The text after `add` is stored literally, including quotes and task-like words.
 Bare `note`, unknown subcommands, and incorrect structure return:
 
 ```text
-Cooper needs a valid note command:
+I need a valid note command:
 note add <text>
 note list
 note find <keyword>
@@ -127,11 +127,11 @@ Examples: `note`, `note archive 1`, `note list extra`, `note delete`, `note dele
 
 | Input or condition | Exact response |
 | --- | --- |
-| `note add`, `note edit 1`, or blank replacement text | `Cooper needs some text for your note!` |
-| `note find` or blank keyword | `Cooper needs a keyword to find matching notes!` |
-| Actual line break inside a note command | `Cooper's note commands must fit on one line!` |
-| `note delete abc`, `note delete -1`, `note delete 0`, `note delete +1`, or integer overflow | `Cooper needs a valid positive note number!` |
-| Valid positive number outside the list | `Cooper couldn't find a note with that number :(` |
+| `note add`, `note edit 1`, or blank replacement text | `I need some text for your note!` |
+| `note find` or blank keyword | `I need a keyword to find matching notes!` |
+| Actual line break inside a note command | `I need each note command on a single line!` |
+| `note delete abc`, `note delete -1`, `note delete 0`, `note delete +1`, or integer overflow | `I need a valid positive note number!` |
+| Valid positive number outside the list | `I couldn't find a note with that number :(` |
 
 Validation checks line breaks, structure, required text/keyword and number syntax, Notes availability, then whether
 the number exists. Errors do not modify notes. In the CLI, pressing Enter submits a command; it cannot enter a
@@ -173,7 +173,7 @@ An existing zero-byte file is malformed, not an empty collection.
 If saving fails, Cooper returns:
 
 ```text
-Cooper couldn't save your notes. Your change has not been applied.
+I couldn't save your notes. Your change has not been applied.
 ```
 
 The prior collection remains active and the previous saved file is retained. Saving writes a sibling temporary file
@@ -184,13 +184,13 @@ Temporary files use `notes-*.tmp` names and are cleaned up when possible; they a
 If loading fails, the startup message includes this paragraph after a blank line:
 
 ```text
-Cooper couldn't load your notes. Notes are unavailable until you fix the notes file and restart Cooper. Your tasks are still available.
+I couldn't load your notes. Notes are unavailable until you fix the notes file and restart me. Your tasks are still available.
 ```
 
 Valid note commands then return:
 
 ```text
-Cooper couldn't load your notes. Fix the notes file and restart Cooper. Your saved notes have not been changed.
+I couldn't load your notes. Fix the notes file and restart me. Your saved notes have not been changed.
 ```
 
 Task commands remain available. Cooper does not partially load or overwrite the damaged file.

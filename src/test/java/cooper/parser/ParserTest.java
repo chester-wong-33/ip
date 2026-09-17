@@ -35,7 +35,7 @@ public class ParserTest {
         CooperException exception = assertThrows(CooperException.class, () ->
                 Parser.parseAction("dance now"));
 
-        assertEquals("Cooper doesn't understand this command: dance", exception.getMessage());
+        assertEquals("I don't understand this command: dance", exception.getMessage());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ParserTest {
         CooperException exception = assertThrows(CooperException.class, () ->
                 Parser.parseFindKeyword("find   "));
 
-        assertEquals("Cooper needs a keyword to find matching tasks!", exception.getMessage());
+        assertEquals("I need a keyword to find matching tasks!", exception.getMessage());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ParserTest {
         CooperException exception = assertThrows(CooperException.class, () ->
                 Parser.parseTodo("todo"));
 
-        assertEquals("Cooper notices that your todo is empty. That's impossible!",
+        assertEquals("I need a task description. Use: todo <description>",
                 exception.getMessage());
     }
 
@@ -103,9 +103,9 @@ public class ParserTest {
 
     @Test
     public void parseDeadline_missingTitleOrDelimiter_throwsCooperException() {
-        assertEquals("Cooper can't keep track of tasks with no name!", assertThrows(CooperException.class, () ->
+        assertEquals("I can't keep track of tasks with no name!", assertThrows(CooperException.class, () ->
                 Parser.parseDeadline("deadline /by 2026-08-30")).getMessage());
-        assertEquals("Cooper feels a task can only have exactly 1 deadline!",
+        assertEquals("I need exactly one deadline. Use: deadline <description> /by <date>",
                 assertThrows(CooperException.class, () ->
                         Parser.parseDeadline("deadline submit report 2026-08-30")).getMessage());
     }
@@ -121,9 +121,9 @@ public class ParserTest {
 
     @Test
     public void parseEvent_missingTitleOrFromDelimiter_throwsCooperException() {
-        assertEquals("Cooper thinks we need a title!", assertThrows(CooperException.class, () ->
+        assertEquals("I need a title for this event!", assertThrows(CooperException.class, () ->
                 Parser.parseEvent("event /from 2026-08-30 /to 2026-08-31")).getMessage());
-        assertEquals("Cooper feels an event must have a title and start date!",
+        assertEquals("I need an event title and start date. Use: event <description> /from <date> /to <date>",
                 assertThrows(CooperException.class, () ->
                         Parser.parseEvent("event project meeting /to 2026-08-31")).getMessage());
     }

@@ -4,8 +4,8 @@ import cooper.exception.CooperException;
 
 /** An immutable, single-line snippet independent of task completion state. */
 public record Note(String text) {
-    public static final String EMPTY_TEXT = "Cooper needs some text for your note!";
-    public static final String LINE_BREAK = "Cooper's note commands must fit on one line!";
+    public static final String EMPTY_TEXT = "I need some text for your note!";
+    public static final String LINE_BREAK = "I need each note command on a single line!";
 
     /** Rejects blank or multiline text and removes outer whitespace. */
     public Note {

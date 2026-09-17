@@ -17,7 +17,7 @@ import cooper.task.Task;
  * Handles all text-based interaction with the user.
  */
 public class Ui {
-    private static final String INTRO = "Hello! I'm Cooper. What can I do for you?";
+    private static final String INTRO = "Cooper here, your task co-pilot. What's our next mission?";
     private static final DateTimeFormatter DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM dd uuuu HH:mm", Locale.ENGLISH);
 
@@ -28,7 +28,8 @@ public class Ui {
         List<Integer> numbers = searching ? notes.find(keyword)
                 : IntStream.rangeClosed(1, notes.size()).boxed().toList();
         if (numbers.isEmpty()) {
-            return searching ? "No matching notes found!" : "No notes yet!";
+            return searching ? "No matching notes found!"
+                    : "Your mission notebook is empty. Start with: note add <text>";
         }
         String heading = searching ? "Here are the matching notes:" : "Here are your notes:";
         return heading + "\n" + numbers.stream()
@@ -39,7 +40,7 @@ public class Ui {
     /** Returns the exact acknowledgement after a note mutation has been saved. */
     public String getNoteChangedMessage(Operation operation, int number, Note note, int count) {
         String heading = switch (operation) {
-            case ADD -> "Got it. I've added this note:";
+            case ADD -> "Logged in the mission notebook. I've added this note:";
             case EDIT -> "Got it. I've updated this note:";
             case DELETE -> "Noted. I've removed this note:";
             default -> throw new AssertionError("Expected a note mutation");
@@ -57,8 +58,8 @@ public class Ui {
 
     /** Explains that task commands remain usable after a notes loading failure. */
     public String getNotesLoadingErrorMessage() {
-        return "Cooper couldn't load your notes. Notes are unavailable until you fix the notes file "
-                + "and restart Cooper. Your tasks are still available.";
+        return "I couldn't load your notes. Notes are unavailable until you fix the notes file "
+                + "and restart me. Your tasks are still available.";
     }
 
     /**
@@ -93,7 +94,7 @@ public class Ui {
      * Returns Cooper's bye message string.
      * */
     public String getByeMessage() {
-        return "Bye. Hope to see you again soon!";
+        return "I'm signing off. Until our next mission!";
     }
 
     /**
@@ -107,7 +108,7 @@ public class Ui {
      * Displays a warning that saved tasks could not be loaded.
      */
     public String getLoadingErrorMessage() {
-        return "Cooper couldn't load the saved tasks. Starting with an empty task list.";
+        return "I couldn't load the saved tasks. Starting with an empty task list.";
     }
 
     /**
@@ -118,7 +119,8 @@ public class Ui {
      * @return String of adding new task
      */
     public String getAddedTaskMessage(Task task, int taskCount) {
-        return String.format("Got it. I've added this task:\n%s\n%s", task.toString(), taskCountMessage(taskCount));
+        return String.format("On the flight plan. I've added this task:\n%s\n%s",
+                task.toString(), taskCountMessage(taskCount));
     }
 
     /**
@@ -139,8 +141,7 @@ public class Ui {
      * @return String of marking task
      */
     public String getMarkedTaskMessage(Task task) {
-        return "Nice! I've marked this task as done:\n" + task.toString()
-                + "\nCooper would have loved that :)";
+        return "Mission accomplished! I've marked this task as done:\n" + task.toString();
     }
 
     /**
@@ -150,7 +151,7 @@ public class Ui {
      * @return String of unmarking task
      */
     public String getUnmarkedTaskMessage(Task task) {
-        return "OK, I've marked this task as not done yet:\n" + task + "\nKeep going! :)";
+        return "Back on the flight plan. I've marked this task as not done yet:\n" + task + "\nKeep going! :)";
     }
 
     /**
@@ -161,10 +162,10 @@ public class Ui {
      */
     public String getTaskListMessage(List<Task> tasks) {
         if (tasks.isEmpty()) {
-            return "No current tasks!";
+            return "Your flight plan is clear. Ready when you are.";
         }
 
-        StringBuilder message = new StringBuilder("Here are the tasks in your list:\n");
+        StringBuilder message = new StringBuilder("Here's your flight plan:\n");
         String messageBody = getNumFormattedString(tasks);
         message.append(messageBody);
 

@@ -84,6 +84,6 @@ public class TaskListTest {
 
     private static void assertInvalidIndex(Runnable operation) {
         CooperException exception = assertThrows(CooperException.class, operation::run);
-        assertEquals("Cooper couldn't find a task with that index :(", exception.getMessage());
+        assertEquals("I couldn't find a task with that index :(", exception.getMessage());
     }
 }

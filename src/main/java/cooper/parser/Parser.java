@@ -40,7 +40,7 @@ public class Parser {
         try {
             return Action.valueOf(commandWord.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new CooperException("Cooper doesn't understand this command: " + commandWord);
+            throw new CooperException("I don't understand this command: " + commandWord);
         }
     }
 
@@ -75,7 +75,7 @@ public class Parser {
     public static String parseFindKeyword(String input) {
         String[] parameters = input.trim().split("\\s+", 2);
         if (parameters.length != 2 || parameters[1].isBlank()) {
-            throw new CooperException("Cooper needs a keyword to find matching tasks!");
+            throw new CooperException("I need a keyword to find matching tasks!");
         }
         return parameters[1].trim();
     }
@@ -90,7 +90,7 @@ public class Parser {
     public static ToDo parseTodo(String input) {
         String[] parameters = input.split(" ");
         if (parameters.length == 1) {
-            throw new CooperException("Cooper notices that your todo is empty. That's impossible!");
+            throw new CooperException("I need a task description. Use: todo <description>");
         }
         return new ToDo(input.split(" ", 2)[1]);
     }
@@ -105,10 +105,10 @@ public class Parser {
     public static Deadline parseDeadline(String input) {
         String[] parameters = input.split(" /by ");
         if (parameters.length != 2) {
-            throw new CooperException("Cooper feels a task can only have exactly 1 deadline!");
+            throw new CooperException("I need exactly one deadline. Use: deadline <description> /by <date>");
         }
         if (parameters[0].trim().equals("deadline")) {
-            throw new CooperException("Cooper can't keep track of tasks with no name!");
+            throw new CooperException("I can't keep track of tasks with no name!");
         }
 
         String taskName = parameters[0].split("deadline ")[1];
@@ -125,10 +125,11 @@ public class Parser {
     public static Event parseEvent(String input) {
         String[] parameters = input.split(" /from ");
         if (parameters.length != 2) {
-            throw new CooperException("Cooper feels an event must have a title and start date!");
+            throw new CooperException("I need an event title and start date. "
+                    + "Use: event <description> /from <date> /to <date>");
         }
         if (parameters[0].trim().equals("event")) {
-            throw new CooperException("Cooper thinks we need a title!");
+            throw new CooperException("I need a title for this event!");
         }
 
         String taskName = parameters[0].split("event ")[1];

@@ -129,7 +129,7 @@ public class Cooper {
     /** Parses and executes a delete command, then persists the updated list. */
     private String handleDelete(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
-                "Deleting is serious! Cooper wishes you provided a proper index only.");
+                "I need a task number to remove it. Use: delete <task-number>");
         Task removedTask = tasks.delete(taskNumber);
         saveTasks();
         return ui.getDeletedTaskMessage(removedTask, tasks.size());
@@ -138,7 +138,7 @@ public class Cooper {
     /** Parses and executes a mark command, then persists the updated task. */
     private String handleMark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
-                "Invalid syntax :( Cooper would like you to follow the format: mark <task-number>");
+                "Let's check those coordinates. Use: mark <task-number>");
         Task task = tasks.get(taskNumber);
         task.markAsDone();
         saveTasks();
@@ -148,7 +148,7 @@ public class Cooper {
     /** Parses and executes an unmark command, then persists the updated task. */
     private String handleUnmark(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
-                "Invalid syntax :( Cooper would like you to follow the format: unmark <task-number>");
+                "Let's check those coordinates. Use: unmark <task-number>");
         Task task = tasks.get(taskNumber);
         task.markAsUndone();
         saveTasks();
@@ -199,7 +199,7 @@ public class Cooper {
             default:
                 // Unknown commands are rejected by the parser, so every Action must be handled above.
                 assert false : "Missing command handler for action: " + action;
-                throw new CooperException("Cooper doesn't understand this command :(");
+                throw new CooperException("I don't understand this command :(");
         }
     }
 
