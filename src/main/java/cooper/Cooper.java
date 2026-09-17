@@ -22,7 +22,7 @@ public class Cooper {
     private static final String FILE_PATH = "data/cooper.txt";
 
     /** Records whether startup recovered from an unreadable saved-task file. */
-    private boolean loadingFailed;
+    private boolean hasLoadingFailed;
     private TaskList tasks;
     private final Storage storage;
     private final Ui ui;
@@ -60,7 +60,7 @@ public class Cooper {
         try {
             loadedTasks = new TaskList(storage.loadTasks());
         } catch (CooperException e) {
-            loadingFailed = true;
+            hasLoadingFailed = true;
             loadedTasks = new TaskList();
         }
         tasks = loadedTasks;
@@ -193,7 +193,7 @@ public class Cooper {
      * @return Response produced by the command.
      */
     private String executeCommand(Action action, String input) {
-        if (loadingFailed && action != Action.NOTE && action != Action.BYE) {
+        if (hasLoadingFailed && action != Action.NOTE && action != Action.BYE) {
             throw new CooperException(Storage.UNAVAILABLE);
         }
         switch (action) {
@@ -247,7 +247,7 @@ public class Cooper {
      */
     public String getStartupMessage() {
         String message = ui.getWelcomeMessage();
-        if (loadingFailed) {
+        if (hasLoadingFailed) {
             message = ui.getLoadingErrorMessage() + "\n\n" + message;
         }
         if (notesLoadingFailed) {

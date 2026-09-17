@@ -2,6 +2,7 @@ package cooper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -79,6 +81,23 @@ public class CooperSmokeTest {
         assertTrue(output.contains("I don't need extra arguments. Use: bye"));
         assertTrue(output.contains("1.[T][ ] recovered"));
         assertTrue(output.contains("I'm signing off. Until our next mission!"));
+    }
+
+    @Test
+    public void run_endOfInput_returnsCleanlyAndPersistsCommands() {
+        String emptyOutput = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> runCooper(""));
+        assertEquals("Cooper here, your task co-pilot. What's our next mission?" + System.lineSeparator(), emptyOutput);
+
+        String output = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> runCooper("todo saved at EOF\nlist"));
+        assertTrue(output.contains("On the flight plan. I've added this task:"));
+        assertTrue(output.contains("Here's your flight plan:\n1.[T][ ] saved at EOF"));
+        assertFalse(output.contains("I'm signing off."));
+
+        Path file = temporaryDirectory.resolve("data").resolve("cooper.txt");
+        CommandResult listed = new Cooper(file.toString()).getResponse("list");
+        assertFalse(listed.isError());
+        assertFalse(listed.shouldExit());
+        assertEquals("Here's your flight plan:\n1.[T][ ] saved at EOF", listed.message());
     }
 
     private String runCooper(String commands) {
