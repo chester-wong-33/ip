@@ -8,11 +8,11 @@ import cooper.parser.NoteCommand.Operation;
 
 /** Parses note syntax before storage availability or collection bounds are checked. */
 public class NoteParser {
-    public static final String USAGE = "Cooper needs a valid note command:\n"
+    public static final String USAGE = "I need a valid note command:\n"
             + "note add <text>\nnote list\nnote find <keyword>\n"
             + "note edit <number> <text>\nnote delete <number>";
-    public static final String INVALID_NUMBER = "Cooper needs a valid positive note number!";
-    public static final String EMPTY_KEYWORD = "Cooper needs a keyword to find matching notes!";
+    public static final String INVALID_NUMBER = "I need a valid positive note number!";
+    public static final String EMPTY_KEYWORD = "I need a keyword to find matching notes!";
 
     /** Parses one complete note command, preserving internal text whitespace. */
     public static NoteCommand parse(String input) {

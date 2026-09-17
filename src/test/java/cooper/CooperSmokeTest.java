@@ -35,7 +35,7 @@ public class CooperSmokeTest {
         CommandResult error = cooper.getResponse("mark");
         assertTrue(error.isError());
         assertFalse(error.shouldExit());
-        assertEquals("Invalid syntax :( Cooper would like you to follow the format: mark <task-number>",
+        assertEquals("Let's check those coordinates. Use: mark <task-number>",
                 error.message());
         assertFalse(cooper.getResponse("list").isError());
         CommandResult goodbye = cooper.getResponse("bye");
@@ -46,7 +46,7 @@ public class CooperSmokeTest {
     @Test
     public void run_invalidCommand_continuesAndPrintsPlainText() {
         String output = runCooper("mark\ntodo read book\nlist\nbye\ntodo should not run\n");
-        assertTrue(output.contains("Invalid syntax :( Cooper would like you to follow the format: mark <task-number>"));
+        assertTrue(output.contains("Let's check those coordinates. Use: mark <task-number>"));
         assertTrue(output.contains("1.[T][ ] read book"));
         assertFalse(output.contains("Error\n"));
         assertFalse(output.contains("should not run"));

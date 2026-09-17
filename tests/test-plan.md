@@ -23,7 +23,7 @@ Compare response strings exactly, including headings, punctuation, original sear
 Run the GUI with Java 25 from a disposable working directory with empty `data/`.
 Use the exact example responses in [the Notes guide](../docs/README.md#notes).
 
-1. Enter `note list`: expect `No notes yet!` and an echoed input bubble.
+1. Enter `note list`: expect `Your mission notebook is empty. Start with: note add <text>` and an echoed input bubble.
 2. Add `Waist size: 32` and `Watch Arrival`: expect numbers 1 and 2 and correct singular/plural counts.
 3. Enter `note find ARRIVAL`: expect only `2.[N] Watch Arrival`.
 4. Enter `note edit 2 Watch Spirited Away`, then `note delete 1`: expect the documented acknowledgements.

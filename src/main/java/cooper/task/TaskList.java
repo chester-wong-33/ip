@@ -71,7 +71,7 @@ public class TaskList {
     /** Ensures a one-based task number refers to a task currently in the list. */
     private void validateTaskNumber(int taskNumber) {
         if (taskNumber <= 0 || taskNumber > tasks.size()) {
-            throw new CooperException("Cooper couldn't find a task with that index :(");
+            throw new CooperException("I couldn't find a task with that index :(");
         }
     }
 }

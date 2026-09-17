@@ -23,10 +23,10 @@ public class CooperNotesTest {
     public void commands_fullLifecycle_returnsExactResponsesAndPersists() {
         String path = directory.resolve("cooper.txt").toString();
         Cooper cooper = new Cooper(path);
-        assertReply(cooper, "note list", "No notes yet!");
-        assertReply(cooper, "note add Waist size: 32", "Got it. I've added this note:\n"
+        assertReply(cooper, "note list", "Your mission notebook is empty. Start with: note add <text>");
+        assertReply(cooper, "note add Waist size: 32", "Logged in the mission notebook. I've added this note:\n"
                 + "1.[N] Waist size: 32\nNow you have 1 note in the list.");
-        assertReply(cooper, "note add Watch Arrival", "Got it. I've added this note:\n"
+        assertReply(cooper, "note add Watch Arrival", "Logged in the mission notebook. I've added this note:\n"
                 + "2.[N] Watch Arrival\nNow you have 2 notes in the list.");
         assertReply(cooper, "note list", "Here are your notes:\n1.[N] Waist size: 32\n2.[N] Watch Arrival");
         assertReply(cooper, "note find ARRIVAL", "Here are the matching notes:\n2.[N] Watch Arrival");
@@ -41,7 +41,7 @@ public class CooperNotesTest {
         assertReply(restarted, "note list", "Here are your notes:\n1.[N] Watch Spirited Away");
         assertReply(restarted, "note delete 1", "Noted. I've removed this note:\n"
                 + "1.[N] Watch Spirited Away\nNow you have 0 notes in the list.");
-        assertReply(new Cooper(path), "note list", "No notes yet!");
+        assertReply(new Cooper(path), "note list", "Your mission notebook is empty. Start with: note add <text>");
         assertTrue(restarted.getResponse("bye").shouldExit());
     }
 
@@ -52,7 +52,7 @@ public class CooperNotesTest {
                 + "E | 0 | event | 2026-08-30T14:00 | 2026-08-30T16:00\n";
         Files.writeString(taskFile, original);
         Cooper cooper = new Cooper(taskFile.toString());
-        assertEquals("Hello! I'm Cooper. What can I do for you?", cooper.getStartupMessage());
+        assertEquals("Cooper here, your task co-pilot. What's our next mission?", cooper.getStartupMessage());
         cooper.getResponse("note add original");
         cooper.getResponse("note add original");
         assertEquals(original, Files.readString(taskFile));
@@ -72,15 +72,15 @@ public class CooperNotesTest {
         Cooper cooper = new Cooper(directory.resolve("cooper.txt").toString());
         cooper.getResponse("note add original");
         String data = Files.readString(directory.resolve("notes.txt"));
-        assertReply(cooper, "note delete 2", "Cooper couldn't find a note with that number :(");
-        assertReply(cooper, "note edit 2 replacement", "Cooper couldn't find a note with that number :(");
+        assertReply(cooper, "note delete 2", "I couldn't find a note with that number :(");
+        assertReply(cooper, "note edit 2 replacement", "I couldn't find a note with that number :(");
         assertReply(cooper, "note list extra", NoteParser.USAGE);
         assertReply(cooper, "note delete 2147483648", NoteParser.INVALID_NUMBER);
-        assertReply(cooper, "note add", "Cooper needs some text for your note!");
-        assertReply(cooper, "note edit 1", "Cooper needs some text for your note!");
-        assertReply(cooper, "note find", "Cooper needs a keyword to find matching notes!");
-        assertReply(cooper, "note add first\nsecond", "Cooper's note commands must fit on one line!");
-        assertReply(cooper, "note delete -1", "Cooper needs a valid positive note number!");
+        assertReply(cooper, "note add", "I need some text for your note!");
+        assertReply(cooper, "note edit 1", "I need some text for your note!");
+        assertReply(cooper, "note find", "I need a keyword to find matching notes!");
+        assertReply(cooper, "note add first\nsecond", "I need each note command on a single line!");
+        assertReply(cooper, "note delete -1", "I need a valid positive note number!");
         assertEquals(data, Files.readString(directory.resolve("notes.txt")));
         assertReply(cooper, "note list", "Here are your notes:\n1.[N] original");
     }
@@ -91,9 +91,9 @@ public class CooperNotesTest {
         String damaged = "COOPER_NOTES_V1\nN | valid\ninvalid\n";
         Files.writeString(notesFile, damaged);
         Cooper cooper = new Cooper(directory.resolve("cooper.txt").toString());
-        assertEquals("Hello! I'm Cooper. What can I do for you?\n\n"
-                + "Cooper couldn't load your notes. Notes are unavailable until you fix the notes file "
-                + "and restart Cooper. Your tasks are still available.", cooper.getStartupMessage());
+        assertEquals("Cooper here, your task co-pilot. What's our next mission?\n\n"
+                + "I couldn't load your notes. Notes are unavailable until you fix the notes file "
+                + "and restart me. Your tasks are still available.", cooper.getStartupMessage());
         for (String input : new String[] {"note list", "note find valid", "note add new",
             "note edit 1 replacement", "note delete 1"}) {
             assertReply(cooper, input, NoteStorage.UNAVAILABLE);
@@ -142,7 +142,7 @@ public class CooperNotesTest {
         Files.createDirectory(destination);
         Files.writeString(destination.resolve("keep.txt"), "keep");
         assertReply(cooper, "note add new", NoteStorage.SAVE_FAILED);
-        assertReply(cooper, "note list", "No notes yet!");
+        assertReply(cooper, "note list", "Your mission notebook is empty. Start with: note add <text>");
         assertEquals("keep", Files.readString(destination.resolve("keep.txt")));
     }
 }

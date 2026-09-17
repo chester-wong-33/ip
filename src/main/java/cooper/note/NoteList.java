@@ -27,7 +27,7 @@ public class NoteList {
     /** Looks up a current one-based number. */
     public Note get(int number) {
         if (number < 1 || number > notes.size()) {
-            throw new CooperException("Cooper couldn't find a note with that number :(");
+            throw new CooperException("I couldn't find a note with that number :(");
         }
         return notes.get(number - 1);
     }
