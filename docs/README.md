@@ -53,6 +53,12 @@ Adds a task with a due date.
 
 **Example:** `deadline submit report /by 2026-10-01 23:59`
 
+**Date rules:** use `yyyy-MM-dd` or `dd-MM-yyyy`; slash separators also work, such as `01/10/2026`.
+`[TIME]` means an optional 24-hour `HH:mm` value; do not type the brackets. Without a time, midnight is used.
+An event must end strictly after it starts. Past dates are allowed; impossible dates such as February 30 are rejected.
+Use lowercase `/by` exactly once in the order shown, separated from values by spaces.
+These delimiter tokens are reserved in dated commands.
+
 ### Adding an event: `event`
 
 Adds a task with a start and end time.
@@ -64,7 +70,7 @@ Adds a task with a start and end time.
 **Date rules:** use `yyyy-MM-dd` or `dd-MM-yyyy`; slash separators also work, such as `01/10/2026`.
 `[TIME]` means an optional 24-hour `HH:mm` value; do not type the brackets. Without a time, midnight is used.
 An event must end strictly after it starts. Past dates are allowed; impossible dates such as February 30 are rejected.
-Use lowercase `/by`, `/from`, and `/to` exactly once in the order shown, separated from values by spaces.
+Use lowercase `/from`, and `/to` exactly once in the order shown, separated from values by spaces.
 These delimiter tokens are reserved in dated commands.
 
 ### Viewing tasks: `list`
