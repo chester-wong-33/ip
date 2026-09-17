@@ -23,7 +23,7 @@ public class Cooper {
 
     /** Records whether startup recovered from an unreadable saved-task file. */
     private boolean loadingFailed;
-    private final TaskList tasks;
+    private TaskList tasks;
     private final Storage storage;
     private final Ui ui;
     private final NoteStorage noteStorage;
@@ -37,7 +37,7 @@ public class Cooper {
 
     /**
      * Creates Cooper using the specified task data file.
-     * If loading fails, Cooper reports the error and starts with an empty task list.
+     * If loading fails, Cooper reports the error and disables the affected collection until restart.
      *
      * @param filePath Path of the task data file.
      */
@@ -47,8 +47,13 @@ public class Cooper {
 
     /** Allows storage failure tests to supply a note storage implementation. */
     Cooper(String filePath, NoteStorage noteStorage) {
+        this(new Storage(filePath), noteStorage);
+    }
+
+    /** Allows deterministic task and note storage failure tests. */
+    Cooper(Storage storage, NoteStorage noteStorage) {
         ui = new Ui();
-        storage = new Storage(filePath);
+        this.storage = storage;
         this.noteStorage = noteStorage;
 
         TaskList loadedTasks;
@@ -113,16 +118,18 @@ public class Cooper {
     }
 
     /** Persists a snapshot of the current task list. */
-    private void saveTasks() {
-        storage.saveTasks(tasks.asList());
+    private void saveTasks(TaskList candidate) {
+        storage.saveTasks(candidate.asList());
+        tasks = candidate;
     }
 
     /** Adds, saves, and displays a newly parsed task. */
     private String addTask(Task task) {
         // Successful task parsers must produce a task before it is stored or displayed.
         assert task != null : "A successful task parser must return a task";
-        tasks.add(task);
-        saveTasks();
+        TaskList candidate = new TaskList(tasks.asList());
+        candidate.add(task);
+        saveTasks(candidate);
         return ui.getAddedTaskMessage(task, tasks.size());
     }
 
@@ -130,8 +137,9 @@ public class Cooper {
     private String handleDelete(String input) {
         int taskNumber = Parser.parseTaskNumber(input,
                 "I need a task number to remove it. Use: delete <task-number>");
-        Task removedTask = tasks.delete(taskNumber);
-        saveTasks();
+        TaskList candidate = new TaskList(tasks.asList());
+        Task removedTask = candidate.delete(taskNumber);
+        saveTasks(candidate);
         return ui.getDeletedTaskMessage(removedTask, tasks.size());
     }
 
@@ -140,8 +148,7 @@ public class Cooper {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Let's check those coordinates. Use: mark <task-number>");
         Task task = tasks.get(taskNumber);
-        task.markAsDone();
-        saveTasks();
+        changeCompletion(task, true);
         return ui.getMarkedTaskMessage(task);
     }
 
@@ -150,9 +157,20 @@ public class Cooper {
         int taskNumber = Parser.parseTaskNumber(input,
                 "Let's check those coordinates. Use: unmark <task-number>");
         Task task = tasks.get(taskNumber);
-        task.markAsUndone();
-        saveTasks();
+        changeCompletion(task, false);
         return ui.getUnmarkedTaskMessage(task);
+    }
+
+    /** Restores the previous completion state if persisting the change fails. */
+    private void changeCompletion(Task task, boolean done) {
+        boolean previous = task.isDone();
+        task.setDone(done);
+        try {
+            saveTasks(tasks);
+        } catch (CooperException e) {
+            task.setDone(previous);
+            throw e;
+        }
     }
 
     /** Parses a find command and returns a message containing matching tasks */
@@ -175,6 +193,9 @@ public class Cooper {
      * @return Response produced by the command.
      */
     private String executeCommand(Action action, String input) {
+        if (loadingFailed && action != Action.NOTE && action != Action.BYE) {
+            throw new CooperException(Storage.UNAVAILABLE);
+        }
         switch (action) {
             case Action.LIST:
                 return handleList();

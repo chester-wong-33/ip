@@ -1,13 +1,16 @@
 package cooper.storage;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.Scanner;
 
 import cooper.exception.CooperException;
 import cooper.task.Deadline;
@@ -15,193 +18,114 @@ import cooper.task.Event;
 import cooper.task.Task;
 import cooper.task.ToDo;
 
-/**
- * Loads tasks from and saves tasks to a data file.
- */
+/** Loads complete task collections and saves them using atomic file replacement. */
 public class Storage {
-    private final String filePath;
+    public static final String UNAVAILABLE = "I couldn't load your tasks. Fix the task file and restart me. "
+            + "Your saved tasks have not been changed.";
+    public static final String SAVE_FAILED = "I couldn't save your tasks. Your change has not been applied.";
+    private final Path path;
 
-    /** Creates a storage manager that reads from and writes to the specified file. */
+    /** Creates a storage manager for the given task file. */
     public Storage(String filePath) {
-        this.filePath = filePath;
+        path = Path.of(filePath).toAbsolutePath();
     }
 
-    /** Decodes the fields of a todo storage entry. */
-    private ToDo parseTodo(String line) {
-        String[] params = line.split("\\|", -1);
-        // decodeTask must route only todo entries to this private decoder.
-        assert params[0].trim().equals("T") : "Todo decoder requires a T entry";
-
-        if (params.length != 3) {
-            throw new CooperException("Improper ToDo format!");
-        }
-
-        boolean isDone = params[1].trim().equals("1");
-
-        return new ToDo(params[2].trim(), isDone);
-    }
-
-    /** Decodes the fields of a deadline storage entry. */
-    private Deadline parseDeadline(String line) {
-        String[] params = line.split("\\|", -1);
-        // decodeTask must route only deadline entries to this private decoder.
-        assert params[0].trim().equals("D") : "Deadline decoder requires a D entry";
-
-        if (params.length != 4) {
-            throw new CooperException("Improper Deadline format!");
-        }
-
-        boolean isDone = params[1].trim().equals("1");
-        LocalDateTime dueDate = LocalDateTime.parse(params[3].trim());
-
-        return new Deadline(params[2].trim(), isDone, dueDate);
-    }
-
-    /** Decodes the fields of an event storage entry. */
-    private Event parseEvent(String line) {
-        String[] params = line.split("\\|", -1);
-        // decodeTask must route only event entries to this private decoder.
-        assert params[0].trim().equals("E") : "Event decoder requires an E entry";
-
-        if (params.length != 5) {
-            throw new CooperException("Improper Event format!");
-        }
-
-        boolean isDone = params[1].trim().equals("1");
-        LocalDateTime startDate = LocalDateTime.parse(params[3].trim());
-        LocalDateTime endDate = LocalDateTime.parse(params[4].trim());
-
-        return new Event(params[2].trim(), isDone, startDate, endDate);
-    }
-
-    /**
-     * Creates parent directories and the data file if absent.
-     *
-     * @param path Location of the data file.
-     * @return Whether a new, empty file was created.
-     * @throws IOException If the directories or file cannot be created.
-     */
-    private boolean createDataFileIfMissing(Path path) throws IOException {
-        Path parentDirectory = path.getParent();
-
-        if (parentDirectory != null) {
-            Files.createDirectories(parentDirectory);
-        }
-
-        if (Files.notExists(path)) {
-            Files.createFile(path);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Reads and decodes task entries from an existing data file.
-     *
-     * @param path Location of the data file.
-     * @return Decoded tasks in their original order.
-     * @throws IOException If the file cannot be opened.
-     * @throws CooperException If a task entry is invalid.
-     */
-    private List<Task> readTasks(Path path) throws IOException {
-        List<Task> taskList = new ArrayList<>();
-
-        try (Scanner fileReader = new Scanner(path)) {
-            while (fileReader.hasNextLine()) {
-                String entry = fileReader.nextLine();
-                taskList.add(decodeTask(entry));
-            }
-        }
-
-        return taskList;
-    }
-
-    /**
-     * Loads all tasks from the data file, creating the file and its parent directories if absent.
-     *
-     * @return Tasks decoded from the data file.
-     * @throws CooperException If the file cannot be read or created.
-     */
+    /** Loads every task, rejecting unreadable or malformed data without publishing a partial list. */
     public List<Task> loadTasks() {
-        Path path = Path.of(filePath);
-
         try {
-            if (createDataFileIfMissing(path)) {
-                return new ArrayList<>();
+            if (Files.notExists(path)) {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
             }
-
-            return readTasks(path);
-        } catch (IOException e) {
-            throw new CooperException("Unable to load task data.");
+            List<Task> result = new ArrayList<>();
+            for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                result.add(decodeTask(line));
+            }
+            return result;
+        } catch (IOException | SecurityException | CooperException e) {
+            throw new CooperException(UNAVAILABLE);
         }
     }
 
-    /**
-     * Replaces the contents of the data file with the supplied tasks.
-     *
-     * @param tasks Tasks to persist in their current order.
-     * @throws CooperException If the directory or file cannot be written.
-     */
+    /** Writes a complete candidate before replacing the original; failed writes preserve the original. */
     public void saveTasks(List<Task> tasks) {
-
-        Path path = Path.of(filePath);
-        Path parent = path.getParent();
-
+        Path temporary = null;
         try {
-            if (parent != null) {
-                Files.createDirectories(parent);
-            }
-        } catch (IOException e) {
-            throw new CooperException("Error in creating new file directory!");
-        }
-
-        try (FileWriter fileWriter = new FileWriter(filePath)) {
+            Files.createDirectories(path.getParent());
+            temporary = Files.createTempFile(path.getParent(), "tasks-", ".tmp");
+            List<String> lines = new ArrayList<>();
             for (Task task : tasks) {
-                fileWriter.write(task.toDataString());
-                fileWriter.write(System.lineSeparator());
+                String description = task.getDescription();
+                String line = task.toDataString();
+                // Legacy records remain unchanged. V2 encodes descriptions that contain pipe delimiters.
+                if (description.contains("|")) {
+                    int start = line.indexOf(" | ", line.indexOf(" | ") + 3) + 3;
+                    String encoded = Base64.getEncoder().encodeToString(description.getBytes(StandardCharsets.UTF_8));
+                    line = "V2 | " + line.substring(0, start) + encoded + line.substring(start + description.length());
+                }
+                decodeTask(line);
+                lines.add(line);
             }
-        } catch (IOException e) {
-            throw new CooperException("Error in writing to the file!");
+            Files.write(temporary, lines, StandardCharsets.UTF_8);
+            replaceFile(temporary, path);
+        } catch (IOException | SecurityException | CooperException e) {
+            throw new CooperException(SAVE_FAILED);
+        } finally {
+            cleanup(temporary);
         }
     }
 
-    /**
-     * Decodes one storage entry into its corresponding task subtype.
-     *
-     * @param line Pipe-delimited storage entry.
-     * @return Decoded todo, deadline, or event.
-     * @throws CooperException If the entry structure, status, or task type is invalid.
-     */
+    /** Atomic replacement boundary, overridable for deterministic failure tests. */
+    protected void replaceFile(Path temporary, Path destination) throws IOException {
+        Files.move(temporary, destination, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /** Best-effort cleanup never masks the outcome of the actual save. */
+    private void cleanup(Path temporary) {
+        if (temporary != null) {
+            try {
+                Files.deleteIfExists(temporary);
+            } catch (IOException | SecurityException ignored) {
+                // Temporary files are never loaded as task data.
+            }
+        }
+    }
+
+    /** Decodes legacy or V2 records, validating field counts, status, descriptions, and dates. */
     public Task decodeTask(String line) {
-        String[] params = line.split("\\|", -1);
-
-        if (params.length < 3) {
-            throw new CooperException("Improper entry format");
-        }
-
-        String type = params[0].trim();
-        String isDone = params[1].trim();
-
-        if (type.length() != 1 || (!isDone.equals("0") && !isDone.equals("1"))) {
-            throw new CooperException("Improper entry format!");
-        }
-
-        char c = type.charAt(0);
-
-        switch (c) {
-            case 'T': {
-                return parseTodo(line);
+        boolean encoded = line.startsWith("V2 | ");
+        String[] fields = (encoded ? line.substring(5) : line).split("\\|", -1);
+        try {
+            if (fields.length < 3 || (!fields[1].trim().equals("0") && !fields[1].trim().equals("1"))) {
+                throw new CooperException(UNAVAILABLE);
             }
-            case 'D': {
-                return parseDeadline(line);
+            String description = fields[2].strip();
+            if (encoded) {
+                byte[] bytes = Base64.getDecoder().decode(description);
+                description = StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
             }
-            case 'E': {
-                return parseEvent(line);
+            if (description.isBlank() || description.matches("(?s).*\\R.*")) {
+                throw new CooperException(UNAVAILABLE);
             }
-            default: {
-                throw new CooperException("Task type not recognized!");
+            boolean done = fields[1].trim().equals("1");
+            String type = fields[0].trim();
+            if (type.equals("T") && fields.length == 3) {
+                return new ToDo(description, done);
             }
+            if (type.equals("D") && fields.length == 4) {
+                return new Deadline(description, done, LocalDateTime.parse(fields[3].trim()));
+            }
+            if (type.equals("E") && fields.length == 5) {
+                LocalDateTime start = LocalDateTime.parse(fields[3].trim());
+                LocalDateTime end = LocalDateTime.parse(fields[4].trim());
+                if (!end.isAfter(start)) {
+                    throw new CooperException(UNAVAILABLE);
+                }
+                return new Event(description, done, start, end);
+            }
+            throw new CooperException(UNAVAILABLE);
+        } catch (DateTimeParseException | IllegalArgumentException | IOException e) {
+            throw new CooperException(UNAVAILABLE);
         }
     }
 }

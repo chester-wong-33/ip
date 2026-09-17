@@ -59,3 +59,20 @@ Use only disposable data; exit Cooper before changing files.
    deterministically without relying on local permission settings.
 
 Manual GUI and platform permission checks require a human run; passing JUnit tests does not certify them.
+
+
+## More error handling
+
+Run `./gradlew test checkstyleMain checkstyleTest` with Java 25.
+
+- `ParserErrorHandlingTest`: whitespace, mixed case (including Turkish locale), preserved description spacing,
+  missing/repeated/reversed delimiters, empty fields, impossible dates/times, event ordering, numeric overflow,
+  extra arguments, and multiline commands.
+- `CooperErrorHandlingTest`: invalid commands preserve disk and memory, failed task additions/deletions/completion
+  changes roll back, damaged task files stay protected while notes remain usable, and Unicode/pipes/duplicates survive restart.
+- `StorageErrorHandlingTest`: malformed records and UTF-8, inaccessible paths, and unsupported atomic replacement
+  produce domain errors while preserving the previous file and cleaning temporary files.
+- `CooperSmokeTest`: malformed events and `bye extra` produce plain-text errors and allow subsequent commands.
+
+In the GUI, try `event meeting /from 2026-10-01`, `mark 2147483648`, and `bye extra`; expect error styling and no exit.
+Then add a valid task and list it to confirm continued operation. GUI appearance checks remain manual.

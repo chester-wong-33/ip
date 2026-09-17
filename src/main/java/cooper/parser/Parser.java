@@ -6,6 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import cooper.exception.CooperException;
 import cooper.task.Deadline;
@@ -16,6 +19,8 @@ import cooper.task.ToDo;
  * Converts user input into actions, task numbers, and task objects.
  */
 public class Parser {
+    /** Recognizes standalone date delimiters without treating date slashes as delimiters. */
+    private static final Pattern DATE_DELIMITER = Pattern.compile("(?<!\\S)/(by|from|to)(?=[ \\t]|$)");
     private static final List<DateTimeFormatter> DATE_TIME_FORMATS = List.of(
             DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm").withResolverStyle(ResolverStyle.STRICT),
             DateTimeFormatter.ofPattern("dd-MM-uuuu HH:mm").withResolverStyle(ResolverStyle.STRICT));
@@ -31,14 +36,25 @@ public class Parser {
      * @throws CooperException If the input is empty or the command is unknown.
      */
     public static Action parseAction(String input) {
-        String trimmedInput = input.trim();
+        String trimmedInput = input.strip();
         if (trimmedInput.isEmpty()) {
             throw new CooperException("Please enter a command!");
         }
 
         String commandWord = trimmedInput.split("\\s+", 2)[0];
         try {
-            return Action.valueOf(commandWord.toUpperCase());
+            Action action = Action.valueOf(commandWord.toUpperCase(Locale.ROOT));
+
+            // Notes retain their more specific single-line error from NoteParser.
+            if (action != Action.NOTE && input.matches("(?s).*\\R.*")) {
+                throw new CooperException("I need each command on a single line!");
+            }
+
+            if ((action == Action.LIST || action == Action.BYE) && !trimmedInput.equalsIgnoreCase(commandWord)) {
+                throw new CooperException("I don't need extra arguments. Use: " + commandWord.toLowerCase(Locale.ROOT));
+            }
+
+            return action;
         } catch (IllegalArgumentException e) {
             throw new CooperException("I don't understand this command: " + commandWord);
         }
@@ -53,7 +69,7 @@ public class Parser {
      * @throws CooperException If the syntax or task number is invalid.
      */
     public static int parseTaskNumber(String input, String syntaxErrorMessage) {
-        String[] parameters = input.trim().split(" ");
+        String[] parameters = input.strip().split("[ \\t]+");
         if (parameters.length != 2) {
             throw new CooperException(syntaxErrorMessage);
         }
@@ -62,6 +78,7 @@ public class Parser {
         if (taskNumber <= 0) {
             throw new CooperException("The index isn't valid!");
         }
+
         return taskNumber;
     }
 
@@ -77,6 +94,7 @@ public class Parser {
         if (parameters.length != 2 || parameters[1].isBlank()) {
             throw new CooperException("I need a keyword to find matching tasks!");
         }
+
         return parameters[1].trim();
     }
 
@@ -88,11 +106,12 @@ public class Parser {
      * @throws CooperException If the description is missing.
      */
     public static ToDo parseTodo(String input) {
-        String[] parameters = input.split(" ");
-        if (parameters.length == 1) {
+        String description = arguments(input);
+        if (description.isBlank()) {
             throw new CooperException("I need a task description. Use: todo <description>");
         }
-        return new ToDo(input.split(" ", 2)[1]);
+
+        return new ToDo(description);
     }
 
     /**
@@ -103,16 +122,13 @@ public class Parser {
      * @throws CooperException If the command or date is invalid.
      */
     public static Deadline parseDeadline(String input) {
-        String[] parameters = input.split(" /by ");
-        if (parameters.length != 2) {
-            throw new CooperException("I need exactly one deadline. Use: deadline <description> /by <date>");
-        }
-        if (parameters[0].trim().equals("deadline")) {
+        String[] fields = dateFields(input, new String[] {"by"},
+                "I need exactly one deadline. Use: deadline <description> /by <date>");
+        if (fields[0].isBlank()) {
             throw new CooperException("I can't keep track of tasks with no name!");
         }
 
-        String taskName = parameters[0].split("deadline ")[1];
-        return new Deadline(taskName, parseDate(parameters[1]));
+        return new Deadline(fields[0], parseDate(fields[1]));
     }
 
     /**
@@ -123,19 +139,75 @@ public class Parser {
      * @throws CooperException If the command or either date is invalid.
      */
     public static Event parseEvent(String input) {
-        String[] parameters = input.split(" /from ");
-        if (parameters.length != 2) {
-            throw new CooperException("I need an event title and start date. "
-                    + "Use: event <description> /from <date> /to <date>");
-        }
-        if (parameters[0].trim().equals("event")) {
+        String[] fields = dateFields(input, new String[] {"from", "to"},
+                "I need an event title and start date. Use: event <description> /from <date> /to <date>");
+        if (fields[0].isBlank()) {
             throw new CooperException("I need a title for this event!");
         }
 
-        String taskName = parameters[0].split("event ")[1];
-        String startDate = parameters[1].split(" /to ")[0];
-        String endDate = parameters[1].split(" /to ")[1];
-        return new Event(taskName, parseDate(startDate), parseDate(endDate));
+        LocalDateTime start = parseDate(fields[1]);
+        LocalDateTime end = parseDate(fields[2]);
+        if (!end.isAfter(start)) {
+            throw new CooperException("I need the end time to be later than the start time.");
+        }
+
+        return new Event(fields[0], start, end);
+    }
+
+    /** Removes only the command word and outer whitespace, preserving description spacing. */
+    private static String arguments(String input) {
+        String[] parts = input.strip().split("[ \\t]+", 2);
+        return parts.length == 2 ? parts[1].strip() : "";
+    }
+
+    /** Extracts date-command fields after validating their delimiters and required values. */
+    private static String[] dateFields(String input, String[] expected, String usage) {
+        String body = arguments(input);
+        List<MatchResult> delimiters = DATE_DELIMITER.matcher(body).results().toList();
+
+        validateDateDelimiters(delimiters, expected, usage);
+
+        String[] fields = extractDateFields(body, delimiters);
+        validateDateValues(fields, usage);
+
+        return fields;
+    }
+
+    /** Requires exactly the expected delimiters in their prescribed order. */
+    private static void validateDateDelimiters(List<MatchResult> delimiters, String[] expected, String usage) {
+        if (delimiters.size() != expected.length) {
+            throw new CooperException(usage);
+        }
+
+        for (int i = 0; i < expected.length; i++) {
+            if (!delimiters.get(i).group(1).equals(expected[i])) {
+                throw new CooperException(usage);
+            }
+        }
+    }
+
+    /** Splits the description and date values at known delimiter positions, trimming only their edges. */
+    private static String[] extractDateFields(String body, List<MatchResult> delimiters) {
+        String[] fields = new String[delimiters.size() + 1];
+        int previous = 0;
+
+        for (int i = 0; i < delimiters.size(); i++) {
+            MatchResult delimiter = delimiters.get(i);
+            fields[i] = body.substring(previous, delimiter.start()).strip();
+            previous = delimiter.end();
+        }
+
+        fields[delimiters.size()] = body.substring(previous).strip();
+        return fields;
+    }
+
+    /** Rejects empty date values; callers provide command-specific errors for an empty description. */
+    private static void validateDateValues(String[] fields, String usage) {
+        for (int i = 1; i < fields.length; i++) {
+            if (fields[i].isBlank()) {
+                throw new CooperException(usage);
+            }
+        }
     }
 
     /**
@@ -147,7 +219,7 @@ public class Parser {
      * @throws CooperException If the value does not match a supported format.
      */
     public static LocalDateTime parseDate(String time) {
-        String normalizedTime = time.trim().replace('/', '-');
+        String normalizedTime = time.strip().replace('/', '-').replaceAll("[ \\t]+", " ");
 
         for (DateTimeFormatter formatter : DATE_TIME_FORMATS) {
             try {
@@ -168,17 +240,12 @@ public class Parser {
         throw new CooperException("Invalid date. Use yyyy-MM-dd or dd-MM-yyyy, and HH:mm optionally.");
     }
 
-    /** Converts a string of decimal digits to an integer, or returns {@code -1} for non-digits. */
+    /** Converts a string of decimal digits to an integer, or returns {@code -1} for invalid or overflowing values. */
     private static int wordToNum(String numberString) {
-        int number = 0;
-        int length = numberString.length();
-        for (int i = 0; i < length; i++) {
-            char currentCharacter = numberString.charAt(i);
-            if (currentCharacter - '0' < 0 || currentCharacter - '0' > 9) {
-                return -1;
-            }
-            number += (currentCharacter - '0') * (int) Math.pow(10, length - 1 - i);
+        try {
+            return numberString.matches("[0-9]+") ? Integer.parseInt(numberString) : -1;
+        } catch (NumberFormatException e) {
+            return -1;
         }
-        return number;
     }
 }

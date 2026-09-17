@@ -72,6 +72,15 @@ public class CooperSmokeTest {
         assertTrue(output.contains("No matching tasks found!"));
     }
 
+    @Test
+    public void run_malformedEventAndByeWithArguments_continuesUntilValidBye() {
+        String output = runCooper("event meeting /from 2026-10-01\nbye extra\ntodo recovered\nlist\nbye\n");
+        assertTrue(output.contains("Use: event <description> /from <date> /to <date>"));
+        assertTrue(output.contains("I don't need extra arguments. Use: bye"));
+        assertTrue(output.contains("1.[T][ ] recovered"));
+        assertTrue(output.contains("I'm signing off. Until our next mission!"));
+    }
+
     private String runCooper(String commands) {
         ByteArrayInputStream input = new ByteArrayInputStream(commands.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
