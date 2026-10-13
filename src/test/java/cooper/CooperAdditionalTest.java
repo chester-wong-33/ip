@@ -51,12 +51,12 @@ public class CooperAdditionalTest {
         Path file = directory.resolve("tasks.txt");
         Files.writeString(file, "T | 0 | original\n");
         Storage storage = new Storage(file.toString()) {
-            private boolean failNext = true;
+            private boolean isFailNext = true;
 
             @Override
             protected void replaceFile(Path temporary, Path destination) throws IOException {
-                if (failNext) {
-                    failNext = false;
+                if (isFailNext) {
+                    isFailNext = false;
                     throw new IOException("Fail only the first replacement");
                 }
 
